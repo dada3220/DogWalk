@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class DogController : MonoBehaviour
@@ -11,7 +11,7 @@ public class DogController : MonoBehaviour
     public Transform player;
     public float wanderRadius = 5f;
 
-    // �D���x�֘A
+    // 好感度関連
     public int affection = 100;
     public float affectionCheckInterval = 1f;
     private float affectionTimer = 0f;
@@ -19,10 +19,16 @@ public class DogController : MonoBehaviour
     public float minDistanceForBoost = 2f;
     public Slider affectionSlider;
 
-    // ���񂱊֘A
+    // うんこ関連
     public GameObject poopPrefab;
-    public float poopInterval = 6f;
+    public float poopInterval = 10f;
     private float poopTimer = 0f;
+
+    // リード関連
+    public float leashMaxLength = 5f; // プレイヤーとの最大距離
+    public float pullAffectionLossRate = 2f; // 引っ張られ時の好感度減少速度
+
+    private Animator animator;
 
     void Start()
     {
@@ -33,6 +39,8 @@ public class DogController : MonoBehaviour
             affectionSlider.maxValue = 100;
             affectionSlider.value = affection;
         }
+
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -41,45 +49,56 @@ public class DogController : MonoBehaviour
         affectionTimer += Time.deltaTime;
         poopTimer += Time.deltaTime;
 
-        // ���̈ړ�
-        if (timer >= changeTargetTime)
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+
+        //リード距離制限：これ以上離れられない
+        if (distanceToPlayer > leashMaxLength)
         {
-            SetNewTargetPosition();
-            timer = 0f;
+            Vector2 directionToPlayer = (player.position - transform.position).normalized;
+            transform.position = player.position - (Vector3)(directionToPlayer * leashMaxLength);
         }
 
-        transform.position = Vector2.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+        //自由移動（リード内でのみ）
+        if (distanceToPlayer <= leashMaxLength)
+        {
+            if (timer >= changeTargetTime)
+            {
+                SetNewTargetPosition();
+                timer = 0f;
+            }
 
-        // �D���x�X�V
+            transform.position = Vector2.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+        }
+
+        //好感度の距離チェック
         if (affectionTimer >= affectionCheckInterval)
         {
-            float distance = Vector2.Distance(transform.position, player.position);
-
-            if (distance > maxDistance)
+            if (distanceToPlayer > minDistanceForBoost)
             {
-                affection -= 5;
+                affection -= 4;
             }
-            else if (distance < minDistanceForBoost)
+            else if (distanceToPlayer < minDistanceForBoost)
             {
-                affection += 2;
+                affection += 6;
             }
 
             affection = Mathf.Clamp(affection, 0, 100);
-
-            if (affectionSlider != null)
-            {
-                affectionSlider.value = affection;
-            }
-
-            if (affection <= 0)
-            {
-                GameOver();
-            }
+            if (affectionSlider != null) affectionSlider.value = affection;
+            if (affection <= 0) GameOver();
 
             affectionTimer = 0f;
         }
 
-        // ���񂱐���
+        //引っ張られている間、好感度を減らす
+        if (animator != null && animator.GetBool("isPulled"))
+        {
+            affection -= Mathf.RoundToInt(pullAffectionLossRate * Time.deltaTime);
+            affection = Mathf.Clamp(affection, 0, 100);
+            if (affectionSlider != null) affectionSlider.value = affection;
+            if (affection <= 0) GameOver();
+        }
+
+        //うんこ生成
         if (poopTimer >= poopInterval)
         {
             SpawnPoop();
@@ -95,45 +114,38 @@ public class DogController : MonoBehaviour
 
     void SpawnPoop()
     {
-        Instantiate(poopPrefab, transform.position, Quaternion.identity);
+        GameObject poop = Instantiate(poopPrefab, transform.position, Quaternion.identity);
+        Destroy(poop, 10f); // 自動削除（任意）
     }
 
     public void DecreaseAffection(int amount)
     {
         affection -= amount;
         affection = Mathf.Clamp(affection, 0, 100);
-        if (affectionSlider != null)
-        {
-            affectionSlider.value = affection;
-        }
-
-        if (affection <= 0)
-        {
-            GameOver();
-        }
+        if (affectionSlider != null) affectionSlider.value = affection;
+        if (affection <= 0) GameOver();
     }
 
     void GameOver()
     {
         Debug.Log("Game Over! Dog lost trust.");
-        // SceneManager.LoadScene("GameOverScene");
+        // SceneManager.LoadScene("GameOverScene"); // 必要に応じて
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.transform.CompareTag("Player"))
         {
-            affection -= 10;
-            affection = Mathf.Clamp(affection, 0, 100);
-            if (affectionSlider != null)
-            {
-                affectionSlider.value = affection;
-            }
+            DecreaseAffection(10);
+        }
+    }
 
-            if (affection <= 0)
-            {
-                GameOver();
-            }
+    //プレイヤー側から踏ん張りアニメーションを制御
+    public void SetPulledState(bool isPulled)
+    {
+        if (animator != null)
+        {
+            animator.SetBool("isPulled", isPulled);
         }
     }
 }

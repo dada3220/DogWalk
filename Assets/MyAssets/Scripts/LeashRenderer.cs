@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 [RequireComponent(typeof(LineRenderer))]
 public class LeashRenderer : MonoBehaviour
@@ -6,15 +6,16 @@ public class LeashRenderer : MonoBehaviour
     public Transform player;
     public Transform dog;
 
-    public float maxSlack = 1f;     // ‹——£‚ª‹ß‚¢‚Æ‚«‚Ì‚½‚é‚İ—Ê
-    public float slackFalloff = 3f; // ‚½‚é‚İ¨ƒsƒ“‚Ì•Ï‰»‘¬“x
+    public float maxSlack = 1f;     // è·é›¢ãŒè¿‘ã„ã¨ãã®ãŸã‚‹ã¿é‡
+    public float slackFalloff = 3f; // ãŸã‚‹ã¿â†’ãƒ”ãƒ³ã®å¤‰åŒ–é€Ÿåº¦
+    public float maxLeashLength = 5f; //ãƒªãƒ¼ãƒ‰æœ€å¤§é•·ï¼ˆè¿½åŠ ï¼‰
 
     private LineRenderer line;
 
     void Start()
     {
         line = GetComponent<LineRenderer>();
-        line.positionCount = 20; // ’¸“_”i‘½‚¢‚Ù‚Ç‹Èü‚ªŠŠ‚ç‚©j
+        line.positionCount = 20; // é ‚ç‚¹æ•°ï¼ˆå¤šã„ã»ã©æ›²ç·šãŒæ»‘ã‚‰ã‹ï¼‰
     }
 
     void Update()
@@ -24,19 +25,23 @@ public class LeashRenderer : MonoBehaviour
         Vector3 start = player.position;
         Vector3 end = dog.position;
 
+        // æœ€å¤§é•·ã‚’è¶…ãˆã¦ã„ãŸã‚‰åˆ¶é™
         float distance = Vector3.Distance(start, end);
+        if (distance > maxLeashLength)
+        {
+            Vector3 direction = (end - start).normalized;
+            end = start + direction * maxLeashLength;
+        }
+
+        // ãƒ‘ãƒ©ãƒœãƒ©çš„ã«ãŸã‚‹ã¾ã›ã‚‹
         float slack = Mathf.Clamp(maxSlack - distance / slackFalloff, 0f, maxSlack);
 
-        // ’¼ü‚ğŠŠ‚ç‚©‚ÈƒA[ƒ`iƒpƒ‰ƒ{ƒ‰‹Èü•—j‚É‚·‚é
         for (int i = 0; i < line.positionCount; i++)
         {
             float t = i / (float)(line.positionCount - 1);
             Vector3 point = Vector3.Lerp(start, end, t);
-
-            // ƒpƒ‰ƒ{ƒ‰‚Á‚Û‚­Y²‚É‚½‚é‚İ’Ç‰Á
             float arch = Mathf.Sin(Mathf.PI * t) * slack;
             point.y -= arch;
-
             line.SetPosition(i, point);
         }
     }
