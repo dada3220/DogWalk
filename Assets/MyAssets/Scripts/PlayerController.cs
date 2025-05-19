@@ -52,17 +52,37 @@ public class PlayerController : MonoBehaviour
         // アニメーション制御（方向やIdle向きを設定）
         if (animator != null)
         {
+            // 移動ベクトルが存在する場合（速度が0でない）
+            if (movement.magnitude > 0.01f)
+            {
+                // 最後に移動した方向を記憶
+                lastMoveDir = movement;
+
+                // 左右の向きに応じたアニメーションを設定
+                if (movement.x > 0)
+                {
+                    animator.Play("Player_r"); // 右向き
+                }
+                else if (movement.x < 0)
+                {
+                    animator.Play("Player_l"); // 左向き
+                }
+                else if (movement.y < 0)
+                {
+                    animator.Play("Player_s"); // 前向き
+                }
+                else if (movement.y > 0)
+                {
+                    animator.Play("Player_b"); // 後向き
+                }
+            }
+
+            // アニメーションパラメータの設定
             animator.SetFloat("MoveX", movement.x);
             animator.SetFloat("MoveY", movement.y);
             animator.SetFloat("Speed", movement.magnitude);
-
-            // 少しでも動いているなら最後の移動方向を記憶
-            if (movement.magnitude > 0.01f)
-            {
-                lastMoveDir = movement;
-                animator.SetFloat("LastMoveX", lastMoveDir.x);
-                animator.SetFloat("LastMoveY", lastMoveDir.y);
-            }
+            animator.SetFloat("LastMoveX", lastMoveDir.x);
+            animator.SetFloat("LastMoveY", lastMoveDir.y);
         }
     }
 

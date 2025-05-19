@@ -164,4 +164,6 @@ public class DogController : MonoBehaviour
     {
         return animator != null && animator.GetBool("isPulled");
     }
+
+
 }
