@@ -39,4 +39,5 @@ public class Poop : MonoBehaviour
             Destroy(gameObject);    // うんこを消す（回収成功）
         }
     }
+
 }
