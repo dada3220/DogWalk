@@ -14,13 +14,11 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        // 犬が設定されていれば、DogControllerを取得
         if (dog != null)
         {
             dogController = dog.GetComponent<DogController>();
         }
 
-        // プレイヤーのAnimatorを取得
         animator = GetComponent<Animator>();
     }
 
@@ -30,54 +28,75 @@ public class PlayerController : MonoBehaviour
         HandleLeashTension();   // リードによる引っ張り処理
     }
 
-    /// プレイヤーの移動を処理する
     void HandleMovement()
     {
-        // キーボード入力を取得（-1, 0, 1のいずれか）
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveY = Input.GetAxisRaw("Vertical");
         Vector2 movement = new Vector2(moveX, moveY).normalized;
 
         float currentSpeed = speed;
 
-        // 犬が踏ん張っている（引っ張られてる）とき、プレイヤーの速度を落とす
         if (dogController != null && dogController.IsPulled())
         {
-            currentSpeed *= 0.5f; // 移動速度を半分に
+            currentSpeed *= 0.5f;
         }
 
-        // 実際に移動
         transform.Translate(movement * currentSpeed * Time.deltaTime);
 
-        // アニメーション制御（方向やIdle向きを設定）
+        // アニメーション制御
         if (animator != null)
         {
-            // 移動ベクトルが存在する場合（速度が0でない）
             if (movement.magnitude > 0.01f)
             {
-                // 最後に移動した方向を記憶
-                lastMoveDir = movement;
+                lastMoveDir = movement; // 移動がある場合に更新
 
-                // 左右の向きに応じたアニメーションを設定
                 if (movement.x > 0)
                 {
-                    animator.Play("Player_r"); // 右向き
+                    if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Player_r"))
+                        animator.Play("Player_r");
                 }
                 else if (movement.x < 0)
                 {
-                    animator.Play("Player_l"); // 左向き
+                    if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Player_l"))
+                        animator.Play("Player_l");
                 }
                 else if (movement.y < 0)
                 {
-                    animator.Play("Player_s"); // 前向き
+                    if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Player_s"))
+                        animator.Play("Player_s");
                 }
                 else if (movement.y > 0)
                 {
-                    animator.Play("Player_b"); // 後向き
+                    if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Player_b"))
+                        animator.Play("Player_b");
+                }
+            }
+            else
+            {
+                // Idle時、最後に向いていた方向の待機アニメーション再生
+                if (lastMoveDir.x > 0)
+                {
+                    if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Player_rF"))
+                        animator.Play("Player_rF");
+                }
+                else if (lastMoveDir.x < 0)
+                {
+                    if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Player_lF"))
+                        animator.Play("Player_lF");
+                }
+                else if (lastMoveDir.y < 0)
+                {
+                    if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Player_sF"))
+                        animator.Play("Player_sF");
+                }
+                else if (lastMoveDir.y > 0)
+                {
+                    if (!animator.GetCurrentAnimatorStateInfo(0).IsName("Player_bF"))
+                        animator.Play("Player_bF");
                 }
             }
 
-            // アニメーションパラメータの設定
+            // アニメーションパラメータの更新（必要であれば）
             animator.SetFloat("MoveX", movement.x);
             animator.SetFloat("MoveY", movement.y);
             animator.SetFloat("Speed", movement.magnitude);
@@ -86,39 +105,30 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    /// リードが張っている状態かどうかを確認し、犬を引っ張る
     void HandleLeashTension()
     {
-        // 犬が存在しなければ何もしない
         if (dog == null || dogController == null) return;
 
-        float distance = Vector2.Distance(transform.position, dog.position); // プレイヤーと犬の距離
-        Vector2 toPlayer = (Vector2)transform.position - (Vector2)dog.position; // 犬からプレイヤーへの方向
-        Vector2 movementInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")); // プレイヤーの入力ベクトル
+        float distance = Vector2.Distance(transform.position, dog.position);
+        Vector2 toPlayer = (Vector2)transform.position - (Vector2)dog.position;
+        Vector2 movementInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-        // リードの最大距離を超えているかチェック
         if (distance > leashMaxLength)
         {
-            float dot = Vector2.Dot(toPlayer.normalized, movementInput.normalized); // 移動方向が犬から見てプレイヤー方向と一致しているか？
+            float dot = Vector2.Dot(toPlayer.normalized, movementInput.normalized);
 
-            // プレイヤーが「犬を引っ張っている方向に動いている」かつ動いているとき
             if (dot > 0.1f && movementInput.magnitude > 0.1f)
             {
-                // 犬をプレイヤー方向に少しずつ引っ張る
                 dog.position += (Vector3)(toPlayer.normalized * pullSpeed * Time.deltaTime);
-
-                // 犬が「引っ張られている」アニメーション状態に入る
                 dogController.SetPulledState(true);
             }
             else
             {
-                // プレイヤーの動きが弱い・向きが違う場合は踏ん張り解除
                 dogController.SetPulledState(false);
             }
         }
         else
         {
-            // 距離が十分近いので踏ん張り解除
             dogController.SetPulledState(false);
         }
     }
