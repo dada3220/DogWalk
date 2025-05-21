@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 02d436fc2b7e5864c9e9cde154650bfb
+guid: 8700ff87686e4444d92844745f8e169f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1281822782134155374
-    second: "\u67F4\u72AC\u306E\u30D4\u30AF\u30BB\u30EB\u30A2\u30FC\u30C8_0"
+      213: -7284724597897078841
+    second: hunba_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,29 +109,16 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u67F4\u72AC\u306E\u30D4\u30AF\u30BB\u30EB\u30A2\u30FC\u30C8_0"
+      name: hunba_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1024
+        width: 1536
         height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 29704e598fc063ee0800000000000000
-      internalID: -1281822782134155374
+      spriteID: 7c75bc7039577ea90800000000000000
+      internalID: -7284724597897078841
       vertices: []
       indices: 
       edges: []
@@ -160,8 +147,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      "\u67F4\u72AC\u306E\u30D4\u30AF\u30BB\u30EB\u30A2\u30FC\u30C8_0": -1281822782134155374
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

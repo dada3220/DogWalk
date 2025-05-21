@@ -96,7 +96,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            // アニメーションパラメータの更新（必要であれば）
+            // アニメーションパラメータの更新
             animator.SetFloat("MoveX", movement.x);
             animator.SetFloat("MoveY", movement.y);
             animator.SetFloat("Speed", movement.magnitude);
