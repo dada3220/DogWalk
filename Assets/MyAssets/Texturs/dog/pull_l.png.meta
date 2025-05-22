@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9e75ed8c574699546ab7e6f130d882bd
+guid: 8700ff87686e4444d92844745f8e169f
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7984911302643443961
-    second: hunbari_0
+      213: -7284724597897078841
+    second: hunba_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,27 +109,40 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: hunbari_0
+      name: hunba_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1536
-        height: 1024
+        width: 764
+        height: 694
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9f8601d168a10de60800000000000000
-      internalID: 7984911302643443961
+      spriteID: 7c75bc7039577ea90800000000000000
+      internalID: -7284724597897078841
       vertices: []
       indices: 
       edges: []
@@ -138,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 1877454e898484e40b8a80204c86b2a7
     internalID: 0
     vertices: []
     indices: 
@@ -147,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      hunba_0: -7284724597897078841
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
