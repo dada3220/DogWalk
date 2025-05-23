@@ -20,8 +20,8 @@ public class Poop : MonoBehaviour
         if (!touchedByPlayer && (isOutOfScreen || timer >= lifeTime))
         {
             // 犬の好感度を減らす（放置したペナルティ）
-           DogController dog = FindFirstObjectByType<DogController>();
- // シーン上のDogControllerを検索
+            DogController dog = FindFirstObjectByType<DogController>(); // シーン上のDogControllerを検索
+
             if (dog != null)
             {
                 dog.DecreaseAffection(10); // 好感度を10減少
