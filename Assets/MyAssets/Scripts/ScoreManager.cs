@@ -1,16 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; 
+using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
     public Transform player;
     public Transform dog;
     public float scoringDistance = 3f;
-    public TMP_Text scoreText;  // ← Text ではなく TMP_Text を使う
-
-
-
+    public TMP_Text scoreText;  // Text ではなく TMP_Text を使う
 
     private int score = 0;
     private float checkInterval = 0.3f;
@@ -31,4 +28,11 @@ public class ScoreManager : MonoBehaviour
             timer = 0f;
         }
     }
+
+    public void AddScore(int amount)//スコアの加算
+    {
+        score += amount;
+        scoreText.text = "Score: " + score;
+    }
+
 }

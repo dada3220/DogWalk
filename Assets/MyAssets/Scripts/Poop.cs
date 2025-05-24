@@ -21,10 +21,11 @@ public class Poop : MonoBehaviour
         {
             // 犬の好感度を減らす（放置したペナルティ）
             DogController dog = FindFirstObjectByType<DogController>(); // シーン上のDogControllerを検索
+            AffinityManager affinity = FindFirstObjectByType<AffinityManager>();//AffinityManagerを検索
 
             if (dog != null)
             {
-                dog.DecreaseAffection(10); // 好感度を10減少
+                affinity.DecreaseAffection(10); // 好感度を10減少
             }
 
             Destroy(gameObject); // うんこオブジェクトを削除

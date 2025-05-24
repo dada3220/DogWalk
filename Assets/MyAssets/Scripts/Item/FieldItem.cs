@@ -1,13 +1,14 @@
 using UnityEngine;
 
+// アイテムの基本クラス。プレイヤーや犬と接触時の動作を定義するための抽象クラス。
+
 public abstract class FieldItem : MonoBehaviour
 {
     protected Transform player;
     protected Transform dog;
     protected Camera mainCamera;
 
-    protected float boundaryMargin = 3f; // 2枠外に出たら消す
-    protected float spawnMargin = 1f; // 1枠外で出現
+    protected float boundaryMargin = 3f; // 画面の2枠外に出たら自動的に消去される
 
     protected virtual void Start()
     {
@@ -15,54 +16,20 @@ public abstract class FieldItem : MonoBehaviour
         player = GameObject.FindWithTag("Player")?.transform;
         dog = GameObject.FindWithTag("Dog")?.transform;
 
-        // ランダム位置にスポーン
-        transform.position = GetRandomSpawnPosition();
+        // スポーン位置の設定は ItemSpawner に移動したので不要
+        // transform.position = GetRandomSpawnPosition(); ← 削除
     }
 
     protected virtual void Update()
     {
-        // 画面外判定：2枠外に出たら破棄
+        // 画面外（2枠以上外）に出たらオブジェクトを破棄
         if (IsOutOfBounds())
         {
             Destroy(gameObject);
         }
     }
 
-    /// ランダムに1枠外に出現する位置を返す
-    protected Vector3 GetRandomSpawnPosition()
-    {
-        Vector3 camPos = mainCamera.transform.position;
-        float height = 2f * mainCamera.orthographicSize;
-        float width = height * mainCamera.aspect;
-
-        // 外周のどこかを選ぶ
-        int side = Random.Range(0, 4);
-        float x = 0f, y = 0f;
-
-        switch (side)
-        {
-            case 0: // 上
-                x = Random.Range(-width / 2, width / 2);
-                y = height / 2 + spawnMargin;
-                break;
-            case 1: // 下
-                x = Random.Range(-width / 2, width / 2);
-                y = -height / 2 - spawnMargin;
-                break;
-            case 2: // 左
-                x = -width / 2 - spawnMargin;
-                y = Random.Range(-height / 2, height / 2);
-                break;
-            case 3: // 右
-                x = width / 2 + spawnMargin;
-                y = Random.Range(-height / 2, height / 2);
-                break;
-        }
-
-        return new Vector3(camPos.x + x, camPos.y + y, 0f);
-    }
-
-    // 画面の2枠外に出ているか判定
+    // カメラの表示範囲より2枠分外側に出たかどうかをチェック
     protected bool IsOutOfBounds()
     {
         Vector3 camPos = mainCamera.transform.position;
@@ -79,13 +46,13 @@ public abstract class FieldItem : MonoBehaviour
         return (pos.x < minX || pos.x > maxX || pos.y < minY || pos.y > maxY);
     }
 
-    // プレイヤーと接触したときの動作（継承先で定義）
+    // プレイヤーがこのアイテムを取得した時の処理（継承クラスで実装）
     protected abstract void OnPlayerCollect();
 
-    // 犬と接触したときの動作（継承先で定義）
+    // 犬がこのアイテムを取得した時の処理（継承クラスで実装）
     protected abstract void OnDogCollect();
 
-    // トリガー接触処理
+    // 他のオブジェクトとのトリガー接触処理
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
@@ -93,7 +60,7 @@ public abstract class FieldItem : MonoBehaviour
             OnPlayerCollect();
             Destroy(gameObject);
         }
-        else if (other.GetComponent<DogController>() != null)
+        else if (other.CompareTag("Dog") && other.GetComponent<DogController>() != null)
         {
             OnDogCollect();
             Destroy(gameObject);

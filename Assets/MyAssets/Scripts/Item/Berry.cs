@@ -2,15 +2,31 @@ using UnityEngine;
 
 public class Berry : FieldItem
 {
+    public int playerScoreValue = 100;     // プレイヤーが取った時のスコア
+    public int dogAffectionValue = 10;    // 犬が取った時の好感度
+
     protected override void OnPlayerCollect()
     {
-        Debug.Log("プレイヤーが実を取った");
+        // ScoreManager にスコア加算（シングルトンまたは FindObjectOfType）
+        ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();// シーン上のScoreManagerを検索
+        if (scoreManager != null)
+        {
+            scoreManager.AddScore(playerScoreValue);
+        }
+
+        // 自身を削除
+        Destroy(gameObject);
     }
-       
 
     protected override void OnDogCollect()
     {
-        Debug.Log("犬が実を取った");
-       
+        // AffinityManager に好感度加算
+        if (AffinityManager.Instance != null)
+        {
+            AffinityManager.Instance.IncreaseAffection(dogAffectionValue);
+        }
+
+        // 自身を削除
+        Destroy(gameObject);
     }
 }
