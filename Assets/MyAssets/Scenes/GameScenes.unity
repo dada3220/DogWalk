@@ -9611,9 +9611,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemPrefabs:
-  - {fileID: 3332629799314370396, guid: 87c0736b53078ca408c655e8c9a9a562, type: 3}
-  - {fileID: 6987360685395584604, guid: 63a6f1aa63efbf447bb3804e939abe0a, type: 3}
-  - {fileID: 7171530494539535918, guid: b2d092fd0aad09648b86dd7673c6dd01, type: 3}
+  - {fileID: 3332629799314370396, guid: d36339d2f91ccc249aadf1c1e62d8c65, type: 3}
   spawnInterval: 5
   maxItems: 10
   spawnMargin: 1

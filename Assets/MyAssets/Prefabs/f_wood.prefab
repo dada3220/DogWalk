@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 3766459362376735815}
   - component: {fileID: 4504830136927811026}
   - component: {fileID: 8644840110604726388}
-  - component: {fileID: 3068065239281755122}
+  - component: {fileID: 7748891250982411926}
   m_Layer: 0
-  m_Name: wood_0
+  m_Name: f_wood
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -163,7 +163,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 7
---- !u!114 &3068065239281755122
+--- !u!114 &7748891250982411926
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -172,6 +172,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 6987360685395584604}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bc49aee69d033143883c886eb6e88b7, type: 3}
+  m_Script: {fileID: 11500000, guid: ede5a18cfcb701b4fb18ad8420ff397e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerScoreValue: 100
+  dogAffectionValue: 10
+  runDuration: 3
+  runSpeed: 3

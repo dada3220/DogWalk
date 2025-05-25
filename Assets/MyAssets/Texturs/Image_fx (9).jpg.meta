@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1e4770916b2fda24c9cc1350f7c7d245
+guid: 09983555962d3854d926be04753895f8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7439344439387690781
-    second: "\u3057\u3070\u72AC\u306E\u30D4\u30AF\u30BB\u30EB\u30A2\u30FC\u30C8\u30B3\u30EC\u30AF\u30B7\u30E7\u30F3_0"
+      213: 2506457648963201078
+    second: Image_fx (9)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,30 +109,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u3057\u3070\u72AC\u306E\u30D4\u30AF\u30BB\u30EB\u30A2\u30FC\u30C8\u30B3\u30EC\u30AF\u30B7\u30E7\u30F3_0"
+      name: Image_fx (9)_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1024
-        height: 1024
+        width: 1408
+        height: 768
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d171b7f2a5cdd3760800000000000000
-      internalID: 7439344439387690781
+      spriteID: 6382303b3f9b8c220800000000000000
+      internalID: 2506457648963201078
       vertices: []
       indices: 
       edges: []
