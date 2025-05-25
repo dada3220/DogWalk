@@ -44,7 +44,7 @@ public class DogController : MonoBehaviour
         if (distanceToPlayer > leashMaxLength)
         {
             Vector2 pullDir = (player.position - transform.position).normalized;
-            transform.position = Vector2.MoveTowards(transform.position, player.position, 1f * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, player.position, speed * Time.deltaTime);
             SetPulledState(true, pullDir);
         }
         else if (distanceToPlayer > maxDistance)

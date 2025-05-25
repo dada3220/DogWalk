@@ -6,9 +6,9 @@ public class LeashRenderer : MonoBehaviour
     public Transform player;
     public Transform dog;
 
-    public float maxSlack = 1f;     // 距離が近いときのたるみ量
-    public float slackFalloff = 3f; // たるみ→ピンの変化速度
-    public float maxLeashLength = 5f; //リード最大長（追加）
+    public float maxSlack = 3f;     // 距離が近いときのたるみ量
+    public float slackFalloff = 2f; // たるみ→ピンの変化速度
+    public float maxLeashLength = 7f; //リード最大長（追加）
 
     private LineRenderer line;
 

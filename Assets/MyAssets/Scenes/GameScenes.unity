@@ -295,16 +295,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 352eed047c8781944807acdd5dd730ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 3
+  speed: 1
   player: {fileID: 2010439350}
-  wanderRadius: 3
-  affectionCheckInterval: 10
-  maxDistance: 6
+  wanderRadius: 6
+  affectionCheckInterval: 1
+  maxDistance: 6.5
   minDistanceForBoost: 2
   poopPrefab: {fileID: 5022207917484118875, guid: 080b172307283bf4f9d28527fc097240, type: 3}
-  poopInterval: 6
-  leashMaxLength: 5
-  pullAffectionLossRate: 5
+  poopInterval: 10
+  leashMaxLength: 7
+  pullAffectionLossRate: 2
 --- !u!95 &47467728
 Animator:
   serializedVersion: 7
@@ -3496,9 +3496,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 2010439350}
   dog: {fileID: 47467724}
-  maxSlack: 4
-  slackFalloff: 1
-  maxLeashLength: 5
+  maxSlack: 3
+  slackFalloff: 2
+  maxLeashLength: 7
 --- !u!120 &541940757
 LineRenderer:
   serializedVersion: 2
@@ -9611,7 +9611,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemPrefabs:
+  - {fileID: 7171530494539535918, guid: d79e6eb8fd1ed2b47a4b5f16d5811ed3, type: 3}
   - {fileID: 3332629799314370396, guid: d36339d2f91ccc249aadf1c1e62d8c65, type: 3}
+  - {fileID: 3332629799314370396, guid: 87c0736b53078ca408c655e8c9a9a562, type: 3}
+  - {fileID: 7171530494539535918, guid: b2d092fd0aad09648b86dd7673c6dd01, type: 3}
+  - {fileID: 6987360685395584604, guid: 88e352eddad74c843924418ae47f66e3, type: 3}
+  - {fileID: 6987360685395584604, guid: 63a6f1aa63efbf447bb3804e939abe0a, type: 3}
   spawnInterval: 5
   maxItems: 10
   spawnMargin: 1

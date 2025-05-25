@@ -2,26 +2,24 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 
 [RequireComponent(typeof(Animator))]
-public class Cat : FieldItem
+public class Snake : FieldItem
 {
-    public int playerScoreValue = 100;     // プレイヤーが取った時のスコア
-    public int dogAffectionValue = 10;    // 犬が取った時の好感度
-    public int runDuration = 3000;    // 強制移動の継続時間（秒）
+    public int playerScoreValue = -100;     // プレイヤーが取った時のスコア
+    public int dogAffectionValue = -10;     // 犬が取った時の好感度
+    public int runDuration = 3000;          // ブースト継続時間（ミリ秒）
 
-    public float speed = 2f;                // 猫の移動速度
-    public float boostedSpeed = 5f;         // 犬のブースト時速度
+    public float speed = 2f;                // 蛇の移動速度
+    public float boostedSpeed = 10f;        // ブースト時の犬の速度
     private Vector3 moveDirection;
     private bool collected = false;
 
     private Animator animator;
-    private SpriteRenderer spriteRenderer;
 
     protected override void Start()
     {
         base.Start();
 
         animator = GetComponent<Animator>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
 
         if (mainCamera != null)
         {
@@ -29,17 +27,15 @@ public class Cat : FieldItem
             target.z = 0;
             moveDirection = (target - transform.position).normalized;
 
-            // 向きに応じて反転（左向きならflipX）
-            if (moveDirection.x < 0 && spriteRenderer != null)
-            {
-                spriteRenderer.flipX = true;
-            }
+            // 向きに応じてスプライトを回転させる（アニメーションを共有する）
+            float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, 0, angle);
         }
 
         // アニメーション開始（常に歩き）
         if (animator != null)
         {
-            animator.SetBool("cat", true);
+            animator.SetBool("snake", true);
         }
     }
 
@@ -55,15 +51,13 @@ public class Cat : FieldItem
 
     protected override void OnPlayerCollect()
     {
-        // ScoreManager にスコア加算（シングルトンまたは FindObjectOfType）
-        ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();// シーン上のScoreManagerを検索
+        ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();
 
         if (scoreManager != null)
         {
             scoreManager.AddScore(playerScoreValue);
         }
 
-        // 自身を削除
         Destroy(gameObject);
     }
 
@@ -86,7 +80,6 @@ public class Cat : FieldItem
 
             dog.speed = boostedSpeed;
 
-            // 好感度加算
             if (AffinityManager.Instance != null)
             {
                 AffinityManager.Instance.IncreaseAffection(dogAffectionValue);
