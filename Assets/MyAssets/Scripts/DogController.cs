@@ -2,37 +2,41 @@
 
 public class DogController : MonoBehaviour
 {
-    public float speed; // 通常の移動速度
-    public Vector2 targetPosition; // 犬の目的地
-    public float changeTargetTime = 3f; // 移動先変更の間隔
-    public float timer = 0f;
+    // ======= 公開パラメータ（インスペクターで設定） =======
 
-    public Transform player; // プレイヤーの位置参照
-    public float wanderRadius; // プレイヤー周囲の移動範囲
+    public float speed; // 犬の移動速度
+    public Vector2 targetPosition; // ランダム移動の目標位置
+    public float changeTargetTime = 3f; // 目標位置の更新間隔
+    public Transform player; // プレイヤーのTransform参照
+    public float wanderRadius; // プレイヤー周辺での移動半径
 
-    public float affectionCheckInterval; // 好感度チェック間隔
-    private float affectionTimer = 0;
-    public float maxDistance; // この距離を超えると「引っ張り」アニメ再生
-    public float minDistanceForBoost; // 近くにいると好感度が上がる距離
+    public float affectionCheckInterval; // 好感度チェックの間隔
+    public float maxDistance; // 引っ張りアニメーションを再生する距離
+    public float minDistanceForBoost; // 近距離で好感度が上がる距離
 
     public GameObject poopPrefab; // うんちのプレハブ
-    public float poopInterval; // うんち生成間隔
-    private float poopTimer = 0f;
+    public float poopInterval; // うんちを出す間隔
 
-    public float leashMaxLength; // リードの最大距離（これ以上で強制追従）
-    public float pullAffectionLossRate; // 引っ張られている時の好感度減少量
+    public float leashMaxLength; // リードの最大長（強制追従）
+    public float pullAffectionLossRate; // 引っ張られている間の好感度減少速度
 
-    private Animator animator;
-    private bool isPulled = false; // 引っ張り状態フラグ
+    // ======= 内部状態管理 =======
+    private float timer = 0f; // 目標更新タイマー
+    private float affectionTimer = 0f; // 好感度チェックタイマー
+    private float poopTimer = 0f; // うんちタイマー
+
+    private Animator animator; // Animatorコンポーネント
+    private bool isPulled = false; // 引っ張られ状態フラグ
 
     void Start()
     {
-        SetNewTargetPosition(); // 初回の移動先設定
+        SetNewTargetPosition(); // 初期の目的地を設定
         animator = GetComponent<Animator>();
     }
 
     void Update()
     {
+        // タイマーの更新
         timer += Time.deltaTime;
         affectionTimer += Time.deltaTime;
         poopTimer += Time.deltaTime;
@@ -40,15 +44,18 @@ public class DogController : MonoBehaviour
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         Vector2 previousPosition = transform.position;
 
-        // プレイヤーからリード以上に離れたら強制追従
+        // ======= 移動制御 =======
+
         if (distanceToPlayer > leashMaxLength)
         {
+            // リードを超えた → 強制追従
             Vector2 pullDir = (player.position - transform.position).normalized;
             transform.position = Vector2.MoveTowards(transform.position, player.position, speed * Time.deltaTime);
             SetPulledState(true, pullDir);
         }
         else if (distanceToPlayer > maxDistance)
         {
+            // プレイヤーと遠い → 引っ張りアニメーション
             Vector2 pullDir = (player.position - transform.position).normalized;
             SetPulledState(true, pullDir);
         }
@@ -61,54 +68,50 @@ public class DogController : MonoBehaviour
                 timer = 0f;
             }
 
-            Vector2 moveDir = targetPosition - (Vector2)transform.position;
-
-            // 移動方向をXまたはYに限定（斜め回避）
-            if (Mathf.Abs(moveDir.x) > Mathf.Abs(moveDir.y)) moveDir.y = 0;
-            else moveDir.x = 0;
-
-            moveDir.Normalize();
+            // 移動方向ベクトルを正規化（斜め移動も許可）
+            Vector2 moveDir = (targetPosition - (Vector2)transform.position).normalized;
             transform.position = (Vector2)transform.position + moveDir * speed * Time.deltaTime;
 
             SetPulledState(false);
         }
 
-        // 移動アニメーションの更新（引っ張りでないとき）
+        // ======= アニメーション更新（移動時） =======
         if (!IsPulled())
         {
-            Vector2 moveVector = ((Vector2)transform.position - previousPosition);
+            Vector2 moveVector = (Vector2)transform.position - previousPosition;
             float moveSpeed = moveVector.magnitude / Time.deltaTime;
-            Vector2 moveDirNormalized = moveVector.normalized;
 
             if (animator != null)
             {
-                animator.SetFloat("moveX", moveDirNormalized.x);
-                animator.SetFloat("moveY", moveDirNormalized.y);
+                animator.SetFloat("moveX", moveVector.normalized.x);
+                animator.SetFloat("moveY", moveVector.normalized.y);
                 animator.SetFloat("speed", moveSpeed);
             }
         }
 
-        // 好感度の増減チェック
+        // ======= 好感度処理 =======
         if (affectionTimer >= affectionCheckInterval)
         {
             if (distanceToPlayer > minDistanceForBoost)
             {
-                AffinityManager.Instance?.DecreaseAffection(4); // 離れすぎで減少
+                // 離れてると減少
+                AffinityManager.Instance?.DecreaseAffection(4);
             }
             else
             {
-                AffinityManager.Instance?.IncreaseAffection(6); // 近くで増加
+                // 近くにいると増加
+                AffinityManager.Instance?.IncreaseAffection(6);
             }
             affectionTimer = 0f;
         }
 
-        // 引っ張り中は好感度が徐々に減少
+        // 引っ張り中の好感度減少
         if (IsPulled())
         {
             AffinityManager.Instance?.DecreaseAffection(Mathf.RoundToInt(pullAffectionLossRate * Time.deltaTime));
         }
 
-        // うんちを出す処理
+        // ======= うんち処理 =======
         if (poopTimer >= poopInterval)
         {
             SpawnPoop();
@@ -116,33 +119,33 @@ public class DogController : MonoBehaviour
         }
     }
 
-    // プレイヤーの近くでランダムに目的地を再設定
+    // ======= ランダムな目的地の再設定（プレイヤー周辺） =======
     void SetNewTargetPosition()
     {
-        Vector2 offset = (Random.value > 0.5f)
-            ? new Vector2(Random.Range(-wanderRadius, wanderRadius), 0)
-            : new Vector2(0, Random.Range(-wanderRadius, wanderRadius));
-
+        Vector2 offset = new Vector2(
+            Random.Range(-wanderRadius, wanderRadius),
+            Random.Range(-wanderRadius, wanderRadius)
+        );
         targetPosition = (Vector2)player.position + offset;
     }
 
-    // うんちを出す（10秒で消える）
+    // ======= うんちを出す処理 =======
     void SpawnPoop()
     {
         GameObject poop = Instantiate(poopPrefab, transform.position, Quaternion.identity);
-        Destroy(poop, 10f);
+        Destroy(poop, 10f); // 10秒で自動削除
     }
 
-    // プレイヤーにぶつかった時の好感度減少
+    // ======= プレイヤーにぶつかった時の処理 =======
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.transform.CompareTag("Player"))
         {
-            AffinityManager.Instance?.DecreaseAffection(10);
+            AffinityManager.Instance?.DecreaseAffection(10); // ぶつかると好感度減少
         }
     }
 
-    // 引っ張り状態のセット（アニメーター制御）
+    // ======= 引っ張り状態の設定とアニメーション制御 =======
     public void SetPulledState(bool pulled, Vector2 pullDirection = default)
     {
         if (animator == null) return;
@@ -151,13 +154,13 @@ public class DogController : MonoBehaviour
         {
             isPulled = true;
 
-            // トリガーリセット
+            // 一旦全ての引っ張りトリガーをリセット
             animator.ResetTrigger("pull_l");
             animator.ResetTrigger("pull_r");
             animator.ResetTrigger("pull_b");
             animator.ResetTrigger("pull_s");
 
-            // 方向に応じたトリガーセット
+            // 方向に応じてトリガー設定
             if (Mathf.Abs(pullDirection.x) > Mathf.Abs(pullDirection.y))
             {
                 animator.SetTrigger(pullDirection.x > 0 ? "pull_r" : "pull_l");
@@ -167,7 +170,12 @@ public class DogController : MonoBehaviour
                 animator.SetTrigger(pullDirection.y > 0 ? "pull_b" : "pull_s");
             }
 
-            // スプライトの向き
+            // アニメーション方向反映
+            animator.SetFloat("moveX", pullDirection.normalized.x);
+            animator.SetFloat("moveY", pullDirection.normalized.y);
+            animator.SetFloat("speed", speed);
+
+            // スプライトの向き調整
             if (Mathf.Abs(pullDirection.x) > 0.5f)
                 GetComponent<SpriteRenderer>().flipX = (pullDirection.x < 0);
         }
@@ -177,6 +185,6 @@ public class DogController : MonoBehaviour
         }
     }
 
-    // 引っ張られているか判定
+    // ======= 引っ張り状態かどうかを返す =======
     public bool IsPulled() => isPulled;
 }

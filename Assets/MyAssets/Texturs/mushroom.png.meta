@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 301825c2f665e534592ba052bbf66143
+guid: 23ac32a98bcc6c94bbb8b1bc8b087b4a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1352597637890736446
-    second: dogWL2_0
+      213: 357749872346554099
+    second: mushroom_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,30 +109,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: dogWL2_0
+      name: mushroom_0
       rect:
         serializedVersion: 2
-        x: 36
-        y: 38
-        width: 128
-        height: 114
+        x: 0
+        y: 0
+        width: 149
+        height: 265
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2ce7d7d5d9b9a3de0800000000000000
-      internalID: -1352597637890736446
+      spriteID: 3fe58ab0d9bf6f400800000000000000
+      internalID: 357749872346554099
       vertices: []
       indices: 
       edges: []
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      dogWL2_0: -1352597637890736446
+      mushroom_0: 357749872346554099
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

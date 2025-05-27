@@ -189,7 +189,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.61, y: 1.14}
+  m_Size: {x: 0.73, y: 1.36}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -248,13 +248,13 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.61, y: 1.14}
-    newSize: {x: 0.61, y: 1.14}
+    oldSize: {x: 0.73, y: 1.36}
+    newSize: {x: 0.73, y: 1.36}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.8, y: 1.3}
   m_EdgeRadius: 0
 --- !u!50 &47467726
 Rigidbody2D:
@@ -298,15 +298,14 @@ MonoBehaviour:
   speed: 2
   targetPosition: {x: 0, y: 0}
   changeTargetTime: 3
-  timer: 0
   player: {fileID: 2010439350}
-  wanderRadius: 5.5
+  wanderRadius: 5
   affectionCheckInterval: 1
-  maxDistance: 6
+  maxDistance: 5.5
   minDistanceForBoost: 2
   poopPrefab: {fileID: 5022207917484118875, guid: 080b172307283bf4f9d28527fc097240, type: 3}
   poopInterval: 10
-  leashMaxLength: 6.5
+  leashMaxLength: 6
   pullAffectionLossRate: 2
 --- !u!95 &47467728
 Animator:

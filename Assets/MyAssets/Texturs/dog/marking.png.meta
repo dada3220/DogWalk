@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9e75ed8c574699546ab7e6f130d882bd
+guid: b8e7eb95a4e12694d849605ecfe8ea3d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7984911302643443961
-    second: hunbari_0
+      213: 4707919181623130591
+    second: marking_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,40 +109,27 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: hunbari_0
+      name: marking_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 547
-        height: 830
+        width: 133
+        height: 150
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 9f8601d168a10de60800000000000000
-      internalID: 7984911302643443961
+      spriteID: fd9f4e35d83e55140800000000000000
+      internalID: 4707919181623130591
       vertices: []
       indices: 
       edges: []
@@ -151,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: f8095321100359f419b4395e26771d67
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      hunbari_0: 7984911302643443961
+      marking_0: 4707919181623130591
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
