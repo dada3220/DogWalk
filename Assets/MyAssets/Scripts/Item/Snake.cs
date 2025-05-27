@@ -2,7 +2,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 
 [RequireComponent(typeof(Animator))]
-public class Snake : FieldItem
+public class Snake : Item
 {
     public int playerScoreValue = -100;     // プレイヤーが取った時のスコア
     public int dogAffectionValue = -10;     // 犬が取った時の好感度

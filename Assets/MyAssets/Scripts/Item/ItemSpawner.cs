@@ -4,17 +4,17 @@ using System.Collections.Generic;
 // 毎秒ごとに上下左右に1つずつアイテムを出現させるスクリプト
 public class ItemSpawner : MonoBehaviour
 {
-    [Tooltip("生成するアイテムのプレハブ（複数可）")]
+    [Tooltip("生成するアイテムのプレハブ")]
     public List<GameObject> itemPrefabs;
 
     [Tooltip("出現間隔（秒）")]
-    public float spawnInterval = 1f;
+    public float spawnInterval;
 
     [Tooltip("同時に存在できるアイテム数の上限")]
-    public int maxItems = 50;
+    public int maxItems;
 
     [Tooltip("スポーン時に画面外へどのくらい余白を取るか")]
-    public float spawnMargin = 1f;
+    public float spawnMargin;
 
     private float timer = 0f;
     private List<GameObject> activeItems = new List<GameObject>();

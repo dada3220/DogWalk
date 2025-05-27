@@ -8,7 +8,7 @@ public class LeashRenderer : MonoBehaviour
 
     public float maxSlack = 3f;     // 距離が近いときのたるみ量
     public float slackFalloff = 2f; // たるみ→ピンの変化速度
-    public float maxLeashLength = 7f; //リード最大長（追加）
+    public float maxLeashLength = 6f; //リード最大長（追加）
 
     private LineRenderer line;
 

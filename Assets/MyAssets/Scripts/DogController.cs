@@ -2,25 +2,25 @@
 
 public class DogController : MonoBehaviour
 {
-    public float speed = 1f; // 通常の移動速度
-    private Vector2 targetPosition; // 犬の目的地
-    private float changeTargetTime = 1f; // 移動先変更の間隔
-    private float timer = 0f;
+    public float speed; // 通常の移動速度
+    public Vector2 targetPosition; // 犬の目的地
+    public float changeTargetTime = 3f; // 移動先変更の間隔
+    public float timer = 0f;
 
     public Transform player; // プレイヤーの位置参照
-    public float wanderRadius = 6f; // プレイヤー周囲の移動範囲
+    public float wanderRadius; // プレイヤー周囲の移動範囲
 
-    public float affectionCheckInterval = 1f; // 好感度チェック間隔
-    private float affectionTimer = 0f;
-    public float maxDistance = 6.5f; // この距離を超えると「引っ張り」アニメ再生
-    public float minDistanceForBoost = 2f; // 近くにいると好感度が上がる距離
+    public float affectionCheckInterval; // 好感度チェック間隔
+    private float affectionTimer = 0;
+    public float maxDistance; // この距離を超えると「引っ張り」アニメ再生
+    public float minDistanceForBoost; // 近くにいると好感度が上がる距離
 
     public GameObject poopPrefab; // うんちのプレハブ
-    public float poopInterval = 10f; // うんち生成間隔
+    public float poopInterval; // うんち生成間隔
     private float poopTimer = 0f;
 
-    public float leashMaxLength = 7f; // リードの最大距離（これ以上で強制追従）
-    public float pullAffectionLossRate = 2f; // 引っ張られている時の好感度減少量
+    public float leashMaxLength; // リードの最大距離（これ以上で強制追従）
+    public float pullAffectionLossRate; // 引っ張られている時の好感度減少量
 
     private Animator animator;
     private bool isPulled = false; // 引っ張り状態フラグ

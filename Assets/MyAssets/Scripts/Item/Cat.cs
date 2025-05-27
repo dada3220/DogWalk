@@ -2,10 +2,10 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 
 [RequireComponent(typeof(Animator))]
-public class Cat : FieldItem
+public class Cat : Item
 {
-    public int playerScoreValue = 100;     // プレイヤーが取った時のスコア
-    public int dogAffectionValue = 10;    // 犬が取った時の好感度
+    public int dogAffectionValueDown = -10;     // プレイヤーが取った時の好感度ダウン
+    public int dogAffectionValue = 10;    // 犬が取った時の好感度アップ
     public int runDuration = 3000;    // 強制移動の継続時間（秒）
 
     public float speed = 2f;                // 猫の移動速度
@@ -55,12 +55,10 @@ public class Cat : FieldItem
 
     protected override void OnPlayerCollect()
     {
-        // ScoreManager にスコア加算（シングルトンまたは FindObjectOfType）
-        ScoreManager scoreManager = FindFirstObjectByType<ScoreManager>();// シーン上のScoreManagerを検索
-
-        if (scoreManager != null)
+        // AffinityManager に好感度減算
+        if (AffinityManager.Instance != null)
         {
-            scoreManager.AddScore(playerScoreValue);
+            AffinityManager.Instance.IncreaseAffection(dogAffectionValueDown);
         }
 
         // 自身を削除
