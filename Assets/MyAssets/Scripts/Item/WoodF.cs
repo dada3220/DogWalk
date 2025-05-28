@@ -102,7 +102,7 @@ public class WoodF : Item
         // 犬のアニメーションをアイドルに戻す
         if (dogAnimator != null)
         {
-            dogAnimator.Play("dog_s");
+            dogAnimator.Play("walk_front");
         }
 
         // プレイヤーのアニメーションをアイドルに戻す

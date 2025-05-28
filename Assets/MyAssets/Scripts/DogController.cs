@@ -1,70 +1,75 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// 犬の移動・アニメーション制御を行うクラス
-/// ・ランダム徘徊やプレイヤー追従
-/// ・黄色い木へ向かいマーキングアニメーション再生
-/// ・PoopSpawnerによるうんち生成
+/// 犬の行動とアニメーションを制御するクラス
+/// 機能:
+/// - プレイヤーの周囲をランダムに徘徊
+/// - 黄色い木へのマーキング
+/// - うんち（PoopSpawner）生成
+/// - プレイヤーとの距離によって好感度を増減
+/// - 引っ張り状態の処理（好感度減少）
+/// - アニメーション（idle / walk / pull / dogmarking）
 /// </summary>
 public class DogController : MonoBehaviour
 {
-    // ======= 公開パラメータ（インスペクターで設定） =======
+    // ======= Inspector で設定するパラメータ =======
 
-    public float speed;                      // 犬の移動速度
-    public Vector2 targetPosition;           // ランダム移動の目標位置
-    public float changeTargetTime = 3f;      // 目的地更新間隔
-    public Transform player;                 // プレイヤーTransform
-    public float wanderRadius;               // プレイヤー周辺での徘徊半径
+    public float speed;                      // 移動速度
+    public Vector2 targetPosition;           // 現在の移動先ターゲット（ランダム徘徊用）
+    public float changeTargetTime = 3f;      // ランダム目的地の更新間隔
+    public Transform player;                 // プレイヤーの Transform
+    public float wanderRadius;               // プレイヤー中心に徘徊する半径
 
-    public float affectionCheckInterval;     // 好感度チェック間隔
-    public float maxDistance;                // プレイヤーからの最大距離（引っ張りアニメ）
-    public float minDistanceForBoost;        // 近距離で好感度上昇距離
+    public float affectionCheckInterval;     // 好感度の増減を行う間隔
+    public float maxDistance;                // 木に行くときにプレイヤーから離れていい距離の限界
+    public float minDistanceForBoost;        // プレイヤーとの距離がこの範囲以内で好感度が上がる
 
-    public float poopInterval;               // うんち生成間隔
+    public float poopInterval;               // うんちを出す間隔
+    public float leashMaxLength;             // リードの長さ制限（使用予定？）
+    public float pullAffectionLossRate;      // 引っ張られているときの好感度減少量（毎秒）
 
-    public float leashMaxLength;             // リードの最大長
-    public float pullAffectionLossRate;      // 引っ張り時の好感度減少速度
+    public PoopSpawner poopSpawner;          // PoopSpawner コンポーネントへの参照
 
-    public PoopSpawner poopSpawner;          // PoopSpawner の参照（新規）
+    // ======= 内部で使用する状態管理変数 =======
 
-    // ======= 内部状態管理 =======
+    private float timer = 0f;                // ランダム徘徊用のタイマー
+    private float affectionTimer = 0f;       // 好感度処理タイマー
+    private float poopTimer = 0f;            // うんち生成用タイマー
 
-    private float timer = 0f;                // 目的地更新タイマー
-    private float affectionTimer = 0f;       // 好感度チェックタイマー
-    private float poopTimer = 0f;            // うんち生成タイマー
+    private Animator animator;               // Animator コンポーネントへの参照
+    private bool isPulled = false;           // リードで引っ張られているか
+    private bool isMarking = false;          // 木にマーキング中か
 
-    private Animator animator;               // Animatorコンポーネント
-    private bool isPulled = false;           // 引っ張られているか
-    private bool isMarking = false;          // マーキングアニメーション中か
+    private float markingTimer = 0f;         // マーキング時間（2秒）
+    private YellowTree currentTree = null;   // 現在目指している木
+    private bool isGoingToTree = false;      // 木に向かっている途中か
 
-    private float markingTimer = 0f;         // マーキング用タイマー
-    private YellowTree currentTree = null;   // マーキング対象の木
-    private bool isGoingToTree = false;      // 木へ向かっているか
+    private Vector2 lastMoveDir = Vector2.down; // 最後の移動方向（停止中の向き保持用）
 
     void Start()
     {
-        SetNewTargetPosition();              // 初期の目的地設定
-        animator = GetComponent<Animator>();
+        SetNewTargetPosition();              // 初期目的地をランダム設定
+        animator = GetComponent<Animator>(); // Animator を取得
     }
 
     void Update()
     {
-        // マーキング中は移動停止＆アニメーション再生のみ
+        // === マーキング中はアニメーション再生だけで他は停止 ===
         if (isMarking)
         {
             markingTimer -= Time.deltaTime;
             if (markingTimer <= 0f)
             {
                 isMarking = false;
-                currentTree?.OnDogArrived(); // 木にマーキング完了通知
+                currentTree?.OnDogArrived();     // 木にマーキング完了通知
                 currentTree = null;
-                timer = changeTargetTime;    // ランダム徘徊に戻る
+                timer = changeTargetTime;        // 次の徘徊のためタイマー初期化
                 isGoingToTree = false;
             }
-            return;
+            return; // マーキング中は他の処理スキップ
         }
 
-        // タイマー更新
+        // === タイマー更新 ===
         timer += Time.deltaTime;
         affectionTimer += Time.deltaTime;
         poopTimer += Time.deltaTime;
@@ -72,77 +77,123 @@ public class DogController : MonoBehaviour
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
         Vector2 previousPosition = transform.position;
 
-        // 木に向かう処理
+        // === 木へ向かう処理 ===
         if (isGoingToTree && currentTree != null)
         {
             Vector2 treeTarget = currentTree.transform.position;
-
-            // プレイヤーから木への距離をチェック
             float distPlayerToTree = Vector2.Distance(player.position, treeTarget);
 
-            // 犬が木に近づくとプレイヤーからmaxDistance以上になる場合、近づかない
+            // 木へ向かうとプレイヤーから離れすぎる → 引っ張り状態に
             if (distPlayerToTree > maxDistance)
             {
-                // プレイヤーから離れすぎるので待機（orランダム徘徊に戻るなど）
                 SetPulledState(true, (player.position - transform.position).normalized);
                 return;
             }
 
+            // 木へ向かって移動
             Vector2 moveDir = (treeTarget - (Vector2)transform.position).normalized;
-            transform.position = (Vector2)transform.position + moveDir * speed * Time.deltaTime;
+            transform.position += (Vector3)(moveDir * speed * Time.deltaTime);
 
             if (Vector2.Distance(transform.position, treeTarget) < 0.3f)
             {
-                StartMarking(currentTree);
+                StartMarking(currentTree); // 木に到着したらマーキング開始
             }
         }
 
-
-        // アニメーション更新
-        if (!IsPulled() && !isMarking)
+        // === ランダム徘徊 ===
+        else if (!IsPulled())
         {
-            Vector2 moveVector = (Vector2)transform.position - previousPosition;
-            float moveSpeed = moveVector.magnitude / Time.deltaTime;
-
-            if (animator != null)
+            if (timer >= changeTargetTime)
             {
-                animator.SetFloat("moveX", moveVector.normalized.x);
-                animator.SetFloat("moveY", moveVector.normalized.y);
-                animator.SetFloat("speed", moveSpeed);
+                SetNewTargetPosition(); // プレイヤー中心に新しい目的地を設定
+                timer = 0f;
             }
+
+            Vector2 moveDir = (targetPosition - (Vector2)transform.position).normalized;
+            transform.position += (Vector3)(moveDir * speed * Time.deltaTime);
+            lastMoveDir = moveDir; // 最後の移動方向を保持
         }
 
-        // 好感度処理
+        // === アニメーション更新 ===
+        UpdateAnimation(previousPosition);
+
+        // === 好感度チェック ===
         if (affectionTimer >= affectionCheckInterval)
         {
             if (distanceToPlayer > minDistanceForBoost)
-            {
-                AffinityManager.Instance?.DecreaseAffection(4);
-            }
+                AffinityManager.Instance?.DecreaseAffection(4); // 離れすぎで減少
             else
-            {
-                AffinityManager.Instance?.IncreaseAffection(6);
-            }
+                AffinityManager.Instance?.IncreaseAffection(6); // 近くにいて上昇
+
             affectionTimer = 0f;
         }
 
-        // 引っ張り中の好感度減少
+        // === 引っ張られているときは好感度毎フレーム減少 ===
         if (IsPulled())
         {
             AffinityManager.Instance?.DecreaseAffection(Mathf.RoundToInt(pullAffectionLossRate * Time.deltaTime));
         }
 
-        // うんち処理（PoopSpawner を使って生成）
+        // === うんち生成 ===
         if (poopTimer >= poopInterval)
         {
-            if (poopSpawner != null)
-            {
-                poopSpawner.SpawnPoop(transform.position);
-            }
+            poopSpawner?.SpawnPoop(transform.position); // 現在位置にうんち生成
             poopTimer = 0f;
         }
     }
 
+    /// <summary>
+    /// アニメーションの状態を移動量から判断して設定
+    /// </summary>
+    private void UpdateAnimation(Vector2 previousPosition)
+    {
+        Vector2 moveVector = (Vector2)transform.position - previousPosition;
+        float moveSpeed = moveVector.magnitude / Time.deltaTime;
+
+        if (animator == null) return;
+
+        if (IsPulled())
+        {
+            SetAnimationState("pull", moveVector); // 引っ張りアニメ
+        }
+        else if (isMarking)
+        {
+            animator.SetTrigger("dogmarking");     // マーキングアニメ（単発）
+        }
+        else if (moveSpeed < 0.01f)
+        {
+            SetAnimationState("idle", lastMoveDir); // 停止アニメ（向きは最後の方向）
+        }
+        else
+        {
+            lastMoveDir = moveVector;
+            SetAnimationState("walk", moveVector);  // 通常移動アニメ
+        }
+    }
+
+    /// <summary>
+    /// アニメーションを「状態_方向」で再生する
+    /// 例: walk_front, pull_left
+    /// </summary>
+    private void SetAnimationState(string state, Vector2 dir)
+    {
+        if (dir == Vector2.zero) dir = Vector2.down; // 無方向時は下向きとする
+
+        string direction;
+        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+            direction = dir.x > 0 ? "right" : "left";
+        else
+            direction = dir.y > 0 ? "back" : "front";
+
+        animator.Play($"{state}_{direction}");
+
+        // 左向き時はスプライトを左右反転（pull中は反転しない）
+        GetComponent<SpriteRenderer>().flipX = (state != "pull" && direction == "left");
+    }
+
+    /// <summary>
+    /// 木に向かって移動開始（YellowTreeから呼び出される）
+    /// </summary>
     public void GoToTarget(Vector2 position, YellowTree tree)
     {
         targetPosition = position;
@@ -150,6 +201,9 @@ public class DogController : MonoBehaviour
         isGoingToTree = true;
     }
 
+    /// <summary>
+    /// プレイヤー中心に新しいランダムな目的地を設定
+    /// </summary>
     void SetNewTargetPosition()
     {
         Vector2 offset = new Vector2(
@@ -159,6 +213,9 @@ public class DogController : MonoBehaviour
         targetPosition = (Vector2)player.position + offset;
     }
 
+    /// <summary>
+    /// プレイヤーと衝突時、好感度ダウン
+    /// </summary>
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.transform.CompareTag("Player"))
@@ -167,53 +224,37 @@ public class DogController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 引っ張られているかどうかの状態を切り替える
+    /// </summary>
     public void SetPulledState(bool pulled, Vector2 pullDirection = default)
     {
-        if (animator == null) return;
+        isPulled = pulled;
 
-        if (pulled)
+        if (!pulled && animator != null)
         {
-            isPulled = true;
-
+            // 必要であれば引っ張りアニメのトリガーをリセット
             animator.ResetTrigger("pull_l");
             animator.ResetTrigger("pull_r");
             animator.ResetTrigger("pull_b");
             animator.ResetTrigger("pull_s");
-
-            if (Mathf.Abs(pullDirection.x) > Mathf.Abs(pullDirection.y))
-            {
-                animator.SetTrigger(pullDirection.x > 0 ? "pull_r" : "pull_l");
-            }
-            else
-            {
-                animator.SetTrigger(pullDirection.y > 0 ? "pull_b" : "pull_s");
-            }
-
-            animator.SetFloat("moveX", pullDirection.normalized.x);
-            animator.SetFloat("moveY", pullDirection.normalized.y);
-            animator.SetFloat("speed", speed);
-
-            if (Mathf.Abs(pullDirection.x) > 0.5f)
-                GetComponent<SpriteRenderer>().flipX = (pullDirection.x < 0);
-        }
-        else
-        {
-            isPulled = false;
         }
     }
 
+    /// <summary>
+    /// マーキング状態に入り、2秒間アニメ再生
+    /// </summary>
     private void StartMarking(YellowTree tree)
     {
         isMarking = true;
         markingTimer = 2f;
         currentTree = tree;
-
-        if (animator != null)
-        {
-            animator.SetTrigger("dogmarking");
-        }
+        animator?.SetTrigger("dogmarking");
     }
 
+    /// <summary>
+    /// 引っ張り状態かどうかを返す
+    /// </summary>
     public bool IsPulled()
     {
         return isPulled;
