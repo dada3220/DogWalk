@@ -6,65 +6,55 @@ using UnityEngine;
 /// ・カメラに映ったら犬を呼ぶ
 /// ・犬がマーキング完了を通知したらフラグを立てる
 /// </summary>
-public class YellowTree : MonoBehaviour
+public class Stump : MonoBehaviour
 {
-    private bool hasBeenMarked = false; // マーキング済みフラグ
-    private bool hasSentDog = false;    // 犬を呼び出したかどうか
+    private bool hasBeenMarked = false; // マーキング済みかどうか
+    private bool hasSentDog = false;    // すでに犬を呼んだか
 
-    private DogController dog;          // シーン内の犬参照
+    private DogController dog;          // シーン内の犬への参照
 
     void Start()
     {
-        dog = Object.FindFirstObjectByType<DogController>(); // シーン上の犬を探す
+        dog = Object.FindFirstObjectByType<DogController>();
     }
 
-    /// <summary>
-    /// カメラに映ったとき呼ばれるUnity標準コールバック
-    /// </summary>
     void OnBecameVisible()
     {
-        // まだマーキングされていなくて、犬を呼んでいなければ
-        if (!hasBeenMarked && !hasSentDog && dog != null)
+        // すでにマーキング済みなら何もしない
+        if (hasBeenMarked) return;
+
+        // 犬をまだ呼んでいない場合のみ呼び出す
+        if (!hasSentDog && dog != null)
         {
-            dog.GoToTarget(transform.position, this); // 犬を呼ぶ
+            dog.GoToTarget(transform.position, this);
             hasSentDog = true;
         }
     }
 
     /// <summary>
-    /// 犬からマーキング完了通知を受ける
+    /// 犬からのマーキング完了通知
     /// </summary>
     public void OnDogArrived()
     {
         if (!hasBeenMarked)
         {
             hasBeenMarked = true;
-            hasSentDog = false;
 
-            Debug.Log("木がマーキングされました！");
-
-            // マーキング済みの演出を実行
             MarkingEffect();
         }
     }
 
     /// <summary>
-    /// マーキング済みの演出（色を黄色く変える）
+    /// 色を黄色に変えてマーキング済みを視覚化
     /// </summary>
     private void MarkingEffect()
     {
         var sr = GetComponent<SpriteRenderer>();
         if (sr != null)
         {
-            sr.color = new Color(1f, 1f, 0f, 1f); // 黄色く変更
+            sr.color = new Color(1f, 1f, 0f, 1f); // 黄色
         }
     }
 
-    /// <summary>
-    /// マーキング済みかどうか取得用
-    /// </summary>
-    public bool IsMarked()
-    {
-        return hasBeenMarked;
-    }
+    public bool IsMarked() => hasBeenMarked;
 }

@@ -200,6 +200,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerScoreValue: -100
   dogAffectionValue: -10
-  runDuration: 3000
+  runDuration: 5000
   speed: 2
-  boostedSpeed: 10
+  boostedSpeed: 12

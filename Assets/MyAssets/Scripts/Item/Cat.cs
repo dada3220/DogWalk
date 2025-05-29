@@ -6,10 +6,10 @@ public class Cat : Item
 {
     public int dogAffectionValueDown = -10;     // プレイヤーが取った時の好感度ダウン
     public int dogAffectionValue = 10;    // 犬が取った時の好感度アップ
-    public int runDuration = 3000;    // 強制移動の継続時間（秒）
+    public int runDuration = 5000;    // 強制移動の継続時間（秒）
 
     public float speed = 2f;                // 猫の移動速度
-    public float boostedSpeed = 5f;         // 犬のブースト時速度
+    public float boostedSpeed = 8f;         // 犬のブースト時速度
     private Vector3 moveDirection;
     private bool collected = false;
 
@@ -80,11 +80,8 @@ public class Cat : Item
         DogController dog = FindFirstObjectByType<DogController>();
         if (dog != null)
         {
-            float originalSpeed = dog.speed;
+            dog.SetSpeed(boostedSpeed, true);
 
-            dog.speed = boostedSpeed;
-
-            // 好感度加算
             if (AffinityManager.Instance != null)
             {
                 AffinityManager.Instance.IncreaseAffection(dogAffectionValue);
@@ -92,7 +89,7 @@ public class Cat : Item
 
             await UniTask.Delay(runDuration);
 
-            dog.speed = originalSpeed;
+            dog.ResetSpeed();
         }
     }
 }

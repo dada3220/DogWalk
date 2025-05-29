@@ -4,24 +4,26 @@ using System;
 using System.Threading;
 
 /// <summary>
-/// 犬の行動とアニメーションをコードで制御するクラス
+/// 犬の行動とアニメーションを制御するクラス
 /// </summary>
 public class DogController : MonoBehaviour
 {
     [Header("移動関連")]
-    public float speed = 2.0f;             // 通常移動速度
-    public float pullSpeed = 0.8f;         // 引っ張り時の速度
-    private float currentSpeed;            // 状態に応じた現在速度
+    public float speed = 4f;
+    public float pullSpeed = 1f;
+    private float currentSpeed;
+    private float normalSpeed;
 
-    public Vector2 targetPosition;         // ランダム移動先
-    public float changeTargetTime = 3f;    // ターゲット更新間隔
-    public float wanderRadius = 3f;        // 徘徊範囲
-    public Transform player;               // プレイヤー参照
+    public Vector2 targetPosition;
+    public float changeTargetTime = 3f;
+    public float wanderRadius = 3f;
+    public Transform player;
+    public int waitInterval = 500;
 
     [Header("好感度関連")]
     public float affectionCheckInterval = 1f;
-    public float maxDistance = 5f;         // 引っ張り状態になる距離
-    public float minDistanceForBoost = 2f; // 好感度上昇距離
+    public float maxDistance = 5f;
+    public float minDistanceForBoost = 2f;
     public float pullAffectionLossRate = 3f;
 
     [Header("うんち関連")]
@@ -37,10 +39,12 @@ public class DogController : MonoBehaviour
     private bool isPulled = false;
     private bool isMarking = false;
     private float markingTimer = 0f;
-    private YellowTree currentTree = null;
+    private Stump currentTree = null;
     private bool isGoingToTree = false;
     private Vector2 lastMoveDir = Vector2.down;
 
+    private bool isBoosted = false;
+    private bool isWaitingAfterMove = false;
     private CancellationTokenSource pullCancelToken;
 
     void Start()
@@ -48,6 +52,7 @@ public class DogController : MonoBehaviour
         SetNewTargetPosition();
         animator = GetComponent<Animator>();
         currentSpeed = speed;
+        normalSpeed = speed;
     }
 
     void Update()
@@ -59,17 +64,14 @@ public class DogController : MonoBehaviour
         Vector2 previousPosition = transform.position;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // 距離による引っ張り状態の管理
         if (distanceToPlayer > maxDistance)
         {
-            Vector2 pullDir = (Vector2)(player.position - transform.position).normalized;
+            Vector2 pullDir = (player.position - transform.position).normalized;
             SetPulledState(true, pullDir);
         }
-        else if (IsPulled() && distanceToPlayer <= maxDistance)
+        else if (IsPulled() && distanceToPlayer <= (maxDistance) - 0.5f)
         {
             SetPulledState(false);
-
-            // 引っ張りが解除されたら、木に戻る状態を再開
             if (currentTree != null)
             {
                 isGoingToTree = true;
@@ -90,11 +92,9 @@ public class DogController : MonoBehaviour
             return;
         }
 
-        // 木に向かっているとき
         if (isGoingToTree && currentTree != null && !IsPulled())
         {
             Vector2 treeTarget = currentTree.transform.position;
-
             Vector2 moveDir = (treeTarget - (Vector2)transform.position).normalized;
             transform.position += (Vector3)(moveDir * currentSpeed * Time.deltaTime);
 
@@ -105,31 +105,37 @@ public class DogController : MonoBehaviour
 
             lastMoveDir = moveDir;
         }
-        // ランダム徘徊
         else if (!IsPulled())
         {
-            if (timer >= changeTargetTime)
+            if (isWaitingAfterMove)
             {
-                SetNewTargetPosition();
-                timer = 0f;
+                // 到達後待機中
             }
-
-            Vector2 moveDir = (targetPosition - (Vector2)transform.position).normalized;
-            transform.position += (Vector3)(moveDir * currentSpeed * Time.deltaTime);
-            lastMoveDir = moveDir;
+            else
+            {
+                Vector2 toTarget = targetPosition - (Vector2)transform.position;
+                if (toTarget.magnitude < 0.2f)
+                {
+                    isWaitingAfterMove = true;
+                    WaitBeforeNextMove().Forget();
+                }
+                else
+                {
+                    Vector2 moveDir = toTarget.normalized;
+                    transform.position += (Vector3)(moveDir * currentSpeed * Time.deltaTime);
+                    lastMoveDir = moveDir;
+                }
+            }
         }
 
-        // 引っ張り中の移動（プレイヤー方向）
         if (IsPulled())
         {
-            Vector2 pullDir = (Vector2)(player.position - transform.position).normalized;
+            Vector2 pullDir = (player.position - transform.position).normalized;
             transform.position += (Vector3)(pullDir * currentSpeed * Time.deltaTime);
         }
 
-        // アニメーション制御
         UpdateAnimation(previousPosition);
 
-        // 好感度処理
         if (affectionTimer >= affectionCheckInterval)
         {
             if (distanceToPlayer > minDistanceForBoost)
@@ -140,14 +146,12 @@ public class DogController : MonoBehaviour
             affectionTimer = 0f;
         }
 
-        // 引っ張り中の好感度減少
         if (IsPulled())
         {
             AffinityManager.Instance?.DecreaseAffection(
                 Mathf.RoundToInt(pullAffectionLossRate * Time.deltaTime));
         }
 
-        // うんち生成
         if (poopTimer >= poopInterval)
         {
             poopSpawner?.SpawnPoop(transform.position);
@@ -159,14 +163,14 @@ public class DogController : MonoBehaviour
     {
         if (other.CompareTag("Stump"))
         {
-            YellowTree tree = other.GetComponent<YellowTree>();
-            if (tree != null)
-            {
-                StartMarking(tree);
-            }
+            Stump stump = other.GetComponent<Stump>();
+
+            // すでにマーキング済みまたはマーキング中ならスキップ
+            if (stump == null || stump.IsMarked() || isMarking) return;
+
+            StartMarking(stump);
         }
     }
-
 
     private void UpdateAnimation(Vector2 previousPosition)
     {
@@ -207,10 +211,14 @@ public class DogController : MonoBehaviour
         animator.Play($"{state}_{direction}");
     }
 
-    public void GoToTarget(Vector2 position, YellowTree tree)
+    // 木に向かって移動開始（マーキング済み防止付き）
+    public void GoToTarget(Vector2 position, Stump stump)
     {
+        // マーキング済み or 同じ木をターゲットにしている場合は無視
+        if (stump == null || stump.IsMarked() || stump == currentTree) return;
+
         targetPosition = position;
-        currentTree = tree;
+        currentTree = stump;
         isGoingToTree = true;
     }
 
@@ -237,24 +245,48 @@ public class DogController : MonoBehaviour
 
         if (pulled)
         {
-            currentSpeed = pullSpeed;
-            pullCancelToken?.Cancel();
-            pullCancelToken = new CancellationTokenSource();
+            if (!isBoosted)
+                currentSpeed = pullSpeed;
         }
         else
         {
-            currentSpeed = speed;
-            pullCancelToken?.Cancel();
+            if (!isBoosted)
+                currentSpeed = speed;
         }
     }
 
-    private void StartMarking(YellowTree tree)
+    // マーキング開始（マーキング済み木は無視）
+    private void StartMarking(Stump stump)
     {
+        if (stump == null || stump.IsMarked()) return;
+
         isMarking = true;
         markingTimer = 2f;
-        currentTree = tree;
+        currentTree = stump;
         animator?.Play("dogmarking");
     }
 
     public bool IsPulled() => isPulled;
+
+    public void SetSpeed(float newSpeed, bool boosted = false)
+    {
+        currentSpeed = newSpeed;
+        isBoosted = boosted;
+    }
+
+    public void ResetSpeed()
+    {
+        currentSpeed = speed;
+        isBoosted = false;
+    }
+
+    public bool IsBoosted() => isBoosted;
+
+    private async UniTaskVoid WaitBeforeNextMove()
+    {
+        await UniTask.Delay(waitInterval);
+        SetNewTargetPosition();
+        isWaitingAfterMove = false;
+        timer = 0f;
+    }
 }
