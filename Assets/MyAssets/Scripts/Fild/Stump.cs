@@ -49,7 +49,7 @@ public class YellowTree : MonoBehaviour
     }
 
     /// <summary>
-    /// マーキング済みの演出例（色を黄色く変える）
+    /// マーキング済みの演出（色を黄色く変える）
     /// </summary>
     private void MarkingEffect()
     {
