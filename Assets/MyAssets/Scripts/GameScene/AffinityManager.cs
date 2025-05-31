@@ -5,14 +5,15 @@ public class AffinityManager : MonoBehaviour
 {
     public static AffinityManager Instance { get; private set; }
 
-    public int affection = 100; // 現在の好感度
-    public int maxAffection = 100; // 好感度の最大値
+    public int affection = 100;
+    public int maxAffection = 100;
 
-    public Slider affectionSlider; // UIスライダーへの参照
+    [SerializeField] private Slider affectionSlider;
+
+    public System.Action OnAffectionDepleted; // 外部通知用イベント
 
     private void Awake()
     {
-        // シングルトン設定
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -21,9 +22,8 @@ public class AffinityManager : MonoBehaviour
         Instance = this;
     }
 
-    void Start()
+    private void Start()
     {
-        // スライダー初期化
         if (affectionSlider != null)
         {
             affectionSlider.maxValue = maxAffection;
@@ -31,7 +31,6 @@ public class AffinityManager : MonoBehaviour
         }
     }
 
-    // 好感度増加
     public void IncreaseAffection(int amount)
     {
         affection += amount;
@@ -39,7 +38,6 @@ public class AffinityManager : MonoBehaviour
         UpdateSlider();
     }
 
-    // 好感度減少（0以下ならゲームオーバー）
     public void DecreaseAffection(int amount)
     {
         affection -= amount;
@@ -48,11 +46,11 @@ public class AffinityManager : MonoBehaviour
 
         if (affection <= 0)
         {
-            GameOver();
+            // イベントで通知（処理は外部に任せる）
+            OnAffectionDepleted?.Invoke();
         }
     }
 
-    // UI更新
     private void UpdateSlider()
     {
         if (affectionSlider != null)
@@ -61,13 +59,5 @@ public class AffinityManager : MonoBehaviour
         }
     }
 
-    // ゲームオーバー処理（好感度0）
-    private void GameOver()
-    {
-        Debug.Log("Game Over! Dog lost trust.");
-        // 今後の拡張でUI停止や遷移追加可
-    }
-
-    // 外部から好感度を取得
     public int GetAffection() => affection;
 }
