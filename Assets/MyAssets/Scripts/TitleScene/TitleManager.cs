@@ -6,47 +6,157 @@ using TMPro;
 
 public class TitleManager : MonoBehaviour
 {
-    [SerializeField] private Button startButton;
-    [SerializeField] private Image fadePanel;
-    [SerializeField] private float fadeDuration = 1f;
+    // ==== ロゴ関連 ====
+    [SerializeField] private Canvas canvas;
+    [SerializeField] private RectTransform logoRect;
+    [SerializeField] private Vector2 logoTargetPosition;
+    [SerializeField] private Vector2 logoTargetScale = new Vector2(0.5f, 0.5f);
+    [SerializeField] private float moveDuration = 0.5f;
 
+    // ==== UI要素 ====
+    [SerializeField] private Button startButton;
     [SerializeField] private TMP_Text bestScoreText;
+
+    // ==== メニュー関連 ====
+    [SerializeField] private GameObject rightMenu;
+    [SerializeField] private Button gameStartButton;
+    [SerializeField] private Button ruleButton;
+    [SerializeField] private Button optionButton;
+    [SerializeField] private Button quitButton; // 終了ボタン
+
+    // ==== 終了確認ダイアログ ====
+    [SerializeField] private GameObject quitDialog;
+    [SerializeField] private Button yesButton; // 「はい」
+    [SerializeField] private Button noButton;  // 「いいえ」
 
     private void Start()
     {
+        // 初期状態で非表示にする要素
+        rightMenu.SetActive(false);
+        bestScoreText.gameObject.SetActive(false);
+        quitDialog.SetActive(false); // 終了確認ダイアログも非表示
+
+        // ロゴの移動先を計算
+        logoTargetPosition = CalculateLogoTargetPosition();
+
+        // 各種ボタンのイベント登録
         startButton.onClick.AddListener(() => OnStartButtonClicked().Forget());
-
-        // 非同期ベストスコア読み込み開始
-        _ = ShowBestScoreAsync();
+        gameStartButton.onClick.AddListener(() => LoadGame().Forget());
+        quitButton.onClick.AddListener(ShowQuitDialog);
+        yesButton.onClick.AddListener(QuitGame);
+        noButton.onClick.AddListener(HideQuitDialog);
     }
 
-    // 非同期でベストスコアを取得・表示
-    private async UniTaskVoid ShowBestScoreAsync()
+    // ロゴの目標位置（左上1/4中央）を画面サイズから計算
+    private Vector2 CalculateLogoTargetPosition()
     {
-        int best = await ScoreSaveSystem.GetBestScoreAsync();
-        bestScoreText.text = $"Best Score: {best}";
+        if (logoRect == null || canvas == null)
+        {
+            Debug.LogError("logoRect もしくは canvas が設定されていません。");
+            return Vector2.zero;
+        }
+
+        RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+        return new Vector2(-canvasRect.rect.width / 4f, canvasRect.rect.height / 4f);
     }
 
-    // スタートボタンを押したとき
+    // スタートボタン押下時の処理
     private async UniTaskVoid OnStartButtonClicked()
     {
-        await FadeOut();
+        startButton.interactable = false;
+        startButton.gameObject.SetActive(false); // ボタンを非表示
+
+        // ロゴ移動＋縮小
+        await MoveAndScaleLogo();
+
+        // ベストスコア取得・表示
+        int bestScore = await ScoreSaveSystem.GetBestScoreAsync();
+        bestScoreText.text = $"BEST SCORE \n{bestScore}";
+        bestScoreText.gameObject.SetActive(true);
+
+        // メニューをフェード表示
+        await ShowRightMenuAsync();
+    }
+
+    // ロゴの移動＋スケール変更アニメーション
+    private async UniTask MoveAndScaleLogo()
+    {
+        Vector2 startPos = logoRect.anchoredPosition;
+        Vector2 startScale = logoRect.localScale;
+        float time = 0f;
+
+        while (time < moveDuration)
+        {
+            time += Time.deltaTime;
+            float t = Mathf.Clamp01(time / moveDuration);
+            float eased = EaseInOutQuad(t);
+
+            logoRect.anchoredPosition = Vector2.Lerp(startPos, logoTargetPosition, eased);
+            logoRect.localScale = Vector2.Lerp(startScale, logoTargetScale, eased);
+            await UniTask.Yield();
+        }
+
+        // 最終値をしっかり設定
+        logoRect.anchoredPosition = logoTargetPosition;
+        logoRect.localScale = logoTargetScale;
+    }
+
+    // メニューの各ボタンを順番にフェード表示
+    private async UniTask ShowRightMenuAsync()
+    {
+        rightMenu.SetActive(true);
+
+        foreach (Transform child in rightMenu.transform)
+        {
+            var cg = child.GetComponent<CanvasGroup>() ?? child.gameObject.AddComponent<CanvasGroup>();
+            cg.alpha = 0f;
+            child.gameObject.SetActive(true);
+
+            float fadeTime = 0.3f;
+            float time = 0f;
+            while (time < fadeTime)
+            {
+                time += Time.deltaTime;
+                cg.alpha = Mathf.Clamp01(time / fadeTime);
+                await UniTask.Yield();
+            }
+
+            cg.alpha = 1f;
+            await UniTask.Delay(150); // 少し間隔を空けて次のボタンへ
+        }
+    }
+
+    // ゲームシーンへ遷移
+    private async UniTaskVoid LoadGame()
+    {
         await SceneManager.LoadSceneAsync("GameScene");
     }
 
-    // フェードアウト演出
-    private async UniTask FadeOut()
+    // 終了確認ダイアログを表示
+    private void ShowQuitDialog()
     {
-        fadePanel.gameObject.SetActive(true);
-        var color = fadePanel.color;
-        float time = 0f;
+        quitDialog.SetActive(true);
+    }
 
-        while (time < fadeDuration)
-        {
-            time += Time.deltaTime;
-            color.a = Mathf.Clamp01(time / fadeDuration);
-            fadePanel.color = color;
-            await UniTask.Yield();
-        }
+    // ダイアログを非表示（キャンセル）
+    private void HideQuitDialog()
+    {
+        quitDialog.SetActive(false);
+    }
+
+    // 実際にゲームを終了
+    private void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false; // エディタで停止
+#else
+        Application.Quit(); // 実機でアプリ終了
+#endif
+    }
+
+    // 緩急つけたイージング関数
+    private float EaseInOutQuad(float t)
+    {
+        return t < 0.5f ? 2f * t * t : -1f + (4f - 2f * t) * t;
     }
 }

@@ -24,16 +24,16 @@ public class EndSceneController : MonoBehaviour
     private async UniTaskVoid HandleEndSceneAsync()
     {
         int currentScore = GameScoreHolder.LastScore;
-        resultText.text = $"Your Score: {currentScore}";
+        resultText.text = $"SCORE: {currentScore}";
 
         // ベストスコア保存
         bool isNewBest = await ScoreSaveSystem.SaveIfBestAsync(currentScore);
 
         // ベストスコア更新メッセージ
-        bestScoreMessageText.text = isNewBest ? " New Best Score!" : "";
+        bestScoreMessageText.text = isNewBest ? " BEST SCORE更新！" : "";
 
         // スコアによってランク表示
-        ratingText.text = $"Rank: {GetRating(currentScore)}";
+        ratingText.text = $"{GetRating(currentScore)}ランク";
     }
 
     private string GetRating(int score)
