@@ -6,7 +6,7 @@ public class Snake : Item
 {
     public int playerScoreValue = -100;
     public int dogAffectionValue = -10;
-    public int runDuration = 5000; // ƒ~ƒŠ•b
+    public int runDuration = 100; // ƒ~ƒŠ•b
 
     public float speed = 2f;
     public float boostedSpeed = 12f;

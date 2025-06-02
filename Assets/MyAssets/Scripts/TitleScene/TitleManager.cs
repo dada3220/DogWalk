@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Cysharp.Threading.Tasks;
 using TMPro;
+using System.Collections.Generic;
 
 public class TitleManager : MonoBehaviour
 {
@@ -106,25 +107,44 @@ public class TitleManager : MonoBehaviour
     {
         rightMenu.SetActive(true);
 
+        // 全ての子にCanvasGroupを設定し、初期状態を0にする
+        var canvasGroups = new List<CanvasGroup>();
+
         foreach (Transform child in rightMenu.transform)
         {
             var cg = child.GetComponent<CanvasGroup>() ?? child.gameObject.AddComponent<CanvasGroup>();
             cg.alpha = 0f;
+            cg.interactable = false;
+            cg.blocksRaycasts = false;
             child.gameObject.SetActive(true);
+            canvasGroups.Add(cg);
+        }
 
-            float fadeTime = 0.3f;
-            float time = 0f;
-            while (time < fadeTime)
+        // 全体を一括でフェードイン
+        float fadeTime = 0.3f;
+        float time = 0f;
+        while (time < fadeTime)
+        {
+            time += Time.deltaTime;
+            float alpha = Mathf.Clamp01(time / fadeTime);
+
+            foreach (var cg in canvasGroups)
             {
-                time += Time.deltaTime;
-                cg.alpha = Mathf.Clamp01(time / fadeTime);
-                await UniTask.Yield();
+                cg.alpha = alpha;
             }
 
+            await UniTask.Yield();
+        }
+
+        // 最終的に全て有効化
+        foreach (var cg in canvasGroups)
+        {
             cg.alpha = 1f;
-            await UniTask.Delay(150); // 少し間隔を空けて次のボタンへ
+            cg.interactable = true;
+            cg.blocksRaycasts = true;
         }
     }
+
 
     // ゲームシーンへ遷移
     private async UniTaskVoid LoadGame()
