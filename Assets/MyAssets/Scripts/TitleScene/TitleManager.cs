@@ -25,6 +25,11 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private Button optionButton;
     [SerializeField] private Button quitButton; // 終了ボタン
 
+    // ==== オプション画面関連 ====
+    [SerializeField] private GameObject optionPanel;
+    [SerializeField] private Button closeOptionButton;
+
+
     // ==== 終了確認ダイアログ ====
     [SerializeField] private GameObject quitDialog;
     [SerializeField] private Button yesButton; // 「はい」
@@ -46,6 +51,10 @@ public class TitleManager : MonoBehaviour
         quitButton.onClick.AddListener(ShowQuitDialog);
         yesButton.onClick.AddListener(QuitGame);
         noButton.onClick.AddListener(HideQuitDialog);
+
+        optionPanel.SetActive(false); // オプションパネル
+        optionButton.onClick.AddListener(ShowOptionPanel);       
+        closeOptionButton.onClick.AddListener(HideOptionPanel);  
     }
 
     // ロゴの目標位置（左上1/4中央）を画面サイズから計算
@@ -150,6 +159,17 @@ public class TitleManager : MonoBehaviour
     private async UniTaskVoid LoadGame()
     {
         await SceneManager.LoadSceneAsync("GameScene");
+    }
+
+    // オプション表示・非表示
+    private void ShowOptionPanel()
+    {
+        optionPanel.SetActive(true);
+    }
+
+    private void HideOptionPanel()
+    {
+        optionPanel.SetActive(false);
     }
 
     // 終了確認ダイアログを表示

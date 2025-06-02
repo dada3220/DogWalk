@@ -974,6 +974,7 @@ GameObject:
   - component: {fileID: 1141237346}
   - component: {fileID: 1141237345}
   - component: {fileID: 1141237344}
+  - component: {fileID: 1141237347}
   m_Layer: 5
   m_Name: returnToTitleButton
   m_TagString: Untagged
@@ -1083,6 +1084,65 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1141237342}
   m_CullTransparentMesh: 1
+--- !u!114 &1141237347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1141237342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5ef5fc4af3944649918661cf4f45988, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  seName: click
+--- !u!1 &1148641268
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1148641269}
+  - component: {fileID: 1148641270}
+  m_Layer: 0
+  m_Name: 'OneShotBGMPlayer '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1148641269
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148641268}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1495.1301, y: 970.01917, z: -10.540519}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1148641270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148641268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1afc7ee3e9ed6b2479a6ae7d06981a8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bgmClip: {fileID: 8300000, guid: 5ed96b6321ed3234c8cd260c5cace5be, type: 3}
+  playOnStart: 1
 --- !u!1 &1725887456
 GameObject:
   m_ObjectHideFlags: 0
@@ -1323,6 +1383,7 @@ GameObject:
   - component: {fileID: 1898548243}
   - component: {fileID: 1898548242}
   - component: {fileID: 1898548241}
+  - component: {fileID: 1898548244}
   m_Layer: 5
   m_Name: retryButton
   m_TagString: Untagged
@@ -1432,6 +1493,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1898548239}
   m_CullTransparentMesh: 1
+--- !u!114 &1898548244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1898548239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5ef5fc4af3944649918661cf4f45988, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  seName: click
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1440,3 +1514,4 @@ SceneRoots:
   - {fileID: 366876987}
   - {fileID: 231590424}
   - {fileID: 268217106}
+  - {fileID: 1148641269}

@@ -12,4 +12,5 @@ public class GameManager : MonoBehaviour
     }
 
     public bool IsPlaying => isPlaying;
+
 }

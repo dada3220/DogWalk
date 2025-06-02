@@ -6,24 +6,23 @@ using System.Threading;
 public class DogController : MonoBehaviour
 {
     [Header("移動関連")]
-    public float speed = 4f;
-    public float pullSpeed = 1f;
+    public float speed = 4f;                // 現在の移動速度
+    public float pullSpeed = 1f;            // 引っ張られた時の速度
     public float changeTargetTime = 3f;
     public float wanderRadius = 3f;
-    public Transform player; // プレイヤーのTransform参照
-    public int waitInterval = 500; // 次の移動までの待機時間（ms）
+    public Transform player;
+    public int waitInterval = 500;
 
     [Header("好感度関連")]
     public float affectionCheckInterval = 1f;
-    public float maxDistance = 5f; // プレイヤーから離れすぎたら引っ張られる
-    public float minDistanceForBoost = 2f; // プレイヤーに近いと好感度UP
-    public float pullAffectionLossRate = 3f; // 引っ張られている間の好感度減衰
+    public float maxDistance = 5f;
+    public float minDistanceForBoost = 2f;
+    public float pullAffectionLossRate = 3f;
 
     [Header("うんち関連")]
     public float poopInterval = 10f;
     public PoopSpawner poopSpawner;
 
-    // 内部状態管理
     private float timer = 0f;
     private float affectionTimer = 0f;
     private float poopTimer = 0f;
@@ -38,27 +37,25 @@ public class DogController : MonoBehaviour
     private Vector2 targetPosition;
     private DogMarker dogMarker;
 
-    private CancellationTokenSource moveCTS; // 非同期処理キャンセル用
+    private CancellationTokenSource moveCTS;
     [SerializeField] private GameManager gameManager;
 
+    private float defaultSpeed; // 👈 元の通常速度を保存するフィールド
 
     void Start()
     {
+        defaultSpeed = speed; // 👈 初期速度を記録
         animator = GetComponent<Animator>();
-        targetPosition = GetRandomTarget(); // 最初の目標座標を設定
+        targetPosition = GetRandomTarget();
         dogMarker = new DogMarker(this, animator);
-
-        // マーキング完了時のコールバック登録
         dogMarker.OnMarkingFinished += HandleMarkingFinished;
     }
 
     void Update()
     {
         if (gameManager != null && !gameManager.IsPlaying) return;
+        if (player == null) return;
 
-        if (player == null) return; // プレイヤーが存在しない場合、以降をスキップ
-
-        // タイマー更新
         timer += Time.deltaTime;
         affectionTimer += Time.deltaTime;
         poopTimer += Time.deltaTime;
@@ -66,16 +63,15 @@ public class DogController : MonoBehaviour
         Vector2 previousPosition = transform.position;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        // プレイヤーから離れすぎたら引っ張りモードへ
+        // プレイヤーから離れすぎたら引っ張られる
         if (distanceToPlayer > maxDistance)
             SetPulledState(true, (player.position - transform.position).normalized);
         else if (isPulled && distanceToPlayer <= maxDistance - 0.5f)
             SetPulledState(false);
 
-        // マーキング中は移動しない
-        if (dogMarker.IsMarking) return;
+        if (dogMarker.IsMarking) return; // マーキング中は移動しない
 
-        // 木がターゲットの場合の移動
+        // 木に向かって移動
         if (dogMarker.CurrentTree != null && !isPulled)
         {
             Vector2 moveDir = ((Vector2)dogMarker.CurrentTree.transform.position - (Vector2)transform.position).normalized;
@@ -86,12 +82,12 @@ public class DogController : MonoBehaviour
 
             lastMoveDir = moveDir;
         }
-        // 通常のランダム移動
+        // ランダム移動
         else if (!isPulled)
         {
             if (isWaitingAfterMove)
             {
-                // 待機中は何もしない
+                // 待機中は移動しない
             }
             else
             {
@@ -99,7 +95,7 @@ public class DogController : MonoBehaviour
                 if (toTarget.magnitude < 0.2f)
                 {
                     isWaitingAfterMove = true;
-                    WaitBeforeNextMove().Forget(); // 非同期で次の移動へ
+                    WaitBeforeNextMove().Forget();
                 }
                 else
                 {
@@ -110,7 +106,7 @@ public class DogController : MonoBehaviour
             }
         }
 
-        // 引っ張られている状態の移動
+        // 引っ張られ移動
         if (isPulled)
         {
             Vector2 pullDir = (player.position - transform.position).normalized;
@@ -122,22 +118,20 @@ public class DogController : MonoBehaviour
         // 好感度処理
         if (affectionTimer >= affectionCheckInterval)
         {
-            if (distanceToPlayer > minDistanceForBoost)
-                AffinityManager.Instance?.DecreaseAffection(4);
-            else
+            if (isPulled)
+            {
+                int decreaseAmount = Mathf.RoundToInt(pullAffectionLossRate * affectionCheckInterval);
+                AffinityManager.Instance?.DecreaseAffection(decreaseAmount);
+            }
+            else if (distanceToPlayer <= minDistanceForBoost)
+            {
                 AffinityManager.Instance?.IncreaseAffection(6);
+            }
 
             affectionTimer = 0f;
         }
 
-        // 引っ張られている間は徐々に好感度減少
-        if (isPulled)
-        {
-            AffinityManager.Instance?.DecreaseAffection(
-                Mathf.RoundToInt(pullAffectionLossRate * Time.deltaTime));
-        }
-
-        // うんち生成タイマー処理
+        // うんち処理
         if (poopTimer >= poopInterval)
         {
             poopSpawner?.SpawnPoop(transform.position);
@@ -145,10 +139,9 @@ public class DogController : MonoBehaviour
         }
     }
 
-    // 一定時間待機してから次のランダム移動地点へ
     private async UniTaskVoid WaitBeforeNextMove()
     {
-        moveCTS?.Cancel(); // 前のタスクをキャンセル
+        moveCTS?.Cancel();
         moveCTS = new CancellationTokenSource();
 
         try
@@ -160,13 +153,9 @@ public class DogController : MonoBehaviour
             isWaitingAfterMove = false;
             timer = 0f;
         }
-        catch (OperationCanceledException)
-        {
-            // タスクがキャンセルされた場合は何もしない
-        }
+        catch (OperationCanceledException) { }
     }
 
-    // ランダムな目標地点を生成（playerの周囲）
     private Vector2 GetRandomTarget()
     {
         Vector2 offset = new Vector2(
@@ -178,7 +167,6 @@ public class DogController : MonoBehaviour
         return basePos + offset;
     }
 
-    // アニメーションの更新処理
     private void UpdateAnimation(Vector2 previousPosition)
     {
         Vector2 moveVector = (Vector2)transform.position - previousPosition;
@@ -205,7 +193,6 @@ public class DogController : MonoBehaviour
         }
     }
 
-    // アニメーションステートと方向を設定
     private void SetAnimationState(string state, Vector2 dir)
     {
         if (dir == Vector2.zero) dir = Vector2.down;
@@ -232,16 +219,15 @@ public class DogController : MonoBehaviour
 
     public void ResetSpeed()
     {
+        speed = defaultSpeed;  // 👈 元の速度に戻す
         isBoosted = false;
     }
 
-    // 実際の移動速度を取得
     private float GetCurrentSpeed()
     {
-        return isBoosted ? speed : (isPulled ? pullSpeed : speed);
+        return isPulled ? pullSpeed : speed;
     }
 
-    // 木のターゲットに向かわせる
     public void GoToTarget(Vector2 position, Stump stump)
     {
         if (stump == null || stump.IsMarked() || stump == dogMarker.CurrentTree) return;
@@ -252,20 +238,18 @@ public class DogController : MonoBehaviour
 
     private void HandleMarkingFinished()
     {
-        // ターゲット座標を無効にする
         targetPosition = GetRandomTarget();
     }
 
-    // プレイヤーと衝突したときの好感度減少処理
     void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.transform.CompareTag("Player"))
         {
             AffinityManager.Instance?.DecreaseAffection(10);
+            SEManager.Instance.Play("dogCry");
         }
     }
 
-    // オブジェクト破棄時に非同期タスクを安全にキャンセル
     void OnDestroy()
     {
         moveCTS?.Cancel();
