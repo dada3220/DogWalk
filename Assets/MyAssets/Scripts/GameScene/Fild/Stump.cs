@@ -20,16 +20,15 @@ public class Stump : MonoBehaviour
 
     void OnBecameVisible()
     {
-        // すでにマーキング済みなら何もしない
-        if (hasBeenMarked) return;
+        if (hasBeenMarked || hasSentDog || dog == null) return;
 
-        // 犬をまだ呼んでいない場合のみ呼び出す
-        if (!hasSentDog && dog != null)
-        {
-            dog.GoToTarget(transform.position, this);
-            hasSentDog = true;
-        }
+        // 犬がすでに他の木に向かっているなら何もしない
+        if (dog.IsDogBusy()) return;
+
+        dog.GoToTarget(transform.position, this);
+        hasSentDog = true;
     }
+
 
     /// <summary>
     /// 犬からのマーキング完了通知

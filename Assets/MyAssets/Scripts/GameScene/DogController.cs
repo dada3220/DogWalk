@@ -40,11 +40,11 @@ public class DogController : MonoBehaviour
     private CancellationTokenSource moveCTS;
     [SerializeField] private GameManager gameManager;
 
-    private float defaultSpeed; // 👈 元の通常速度を保存するフィールド
+    private float defaultSpeed; // 元の通常速度を保存するフィールド
 
     void Start()
     {
-        defaultSpeed = speed; // 👈 初期速度を記録
+        defaultSpeed = speed; // 初期速度を記録
         animator = GetComponent<Animator>();
         targetPosition = GetRandomTarget();
         dogMarker = new DogMarker(this, animator);
@@ -167,6 +167,11 @@ public class DogController : MonoBehaviour
         return basePos + offset;
     }
 
+    public bool IsDogBusy()
+    {
+        return dogMarker.IsMarking || dogMarker.CurrentTree != null;
+    }
+
     private void UpdateAnimation(Vector2 previousPosition)
     {
         Vector2 moveVector = (Vector2)transform.position - previousPosition;
@@ -219,7 +224,7 @@ public class DogController : MonoBehaviour
 
     public void ResetSpeed()
     {
-        speed = defaultSpeed;  // 👈 元の速度に戻す
+        speed = defaultSpeed;  // 元の速度に戻す
         isBoosted = false;
     }
 
@@ -230,11 +235,13 @@ public class DogController : MonoBehaviour
 
     public void GoToTarget(Vector2 position, Stump stump)
     {
-        if (stump == null || stump.IsMarked() || stump == dogMarker.CurrentTree) return;
+        // すでにマーキング中 or ターゲットがある場合は無視
+        if (stump == null || stump.IsMarked() || dogMarker.IsMarking || dogMarker.CurrentTree != null) return;
 
         targetPosition = position;
         dogMarker.SetTarget(stump);
     }
+
 
     private void HandleMarkingFinished()
     {
@@ -246,7 +253,7 @@ public class DogController : MonoBehaviour
         if (collision.transform.CompareTag("Player"))
         {
             AffinityManager.Instance?.DecreaseAffection(10);
-            SEManager.Instance.Play("dogCry");
+            SEManager.Instance?.Play("dogCry");
         }
     }
 

@@ -52,7 +52,7 @@ public class FildSpawner : MonoBehaviour
             if (prefab != null)
             {
                 // 重なりチェック
-                if (!IsPositionOccupied(spawnPos, 0.5f)) // 半径0.5の範囲にColliderがあれば生成しない
+                if (!IsPositionOccupied(spawnPos, 1f)) // 半径0.5の範囲にColliderがあれば生成しない
                 {
                     GameObject newItem = Instantiate(prefab, spawnPos, Quaternion.identity);
                     activeItems.Add(newItem);

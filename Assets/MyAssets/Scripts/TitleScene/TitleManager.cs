@@ -23,24 +23,28 @@ public class TitleManager : MonoBehaviour
     [SerializeField] private Button gameStartButton;
     [SerializeField] private Button ruleButton;
     [SerializeField] private Button optionButton;
-    [SerializeField] private Button quitButton; // 終了ボタン
-
+    [SerializeField] private Button quitButton; 
     // ==== オプション画面関連 ====
     [SerializeField] private GameObject optionPanel;
     [SerializeField] private Button closeOptionButton;
 
+    // ==== ルール画面関連 ====
+    [SerializeField] private GameObject rulePanel;         
+    [SerializeField] private Button closeRuleButton; 
 
     // ==== 終了確認ダイアログ ====
     [SerializeField] private GameObject quitDialog;
-    [SerializeField] private Button yesButton; // 「はい」
-    [SerializeField] private Button noButton;  // 「いいえ」
+    [SerializeField] private Button yesButton;
+    [SerializeField] private Button noButton;
 
     private void Start()
     {
         // 初期状態で非表示にする要素
         rightMenu.SetActive(false);
         bestScoreText.gameObject.SetActive(false);
-        quitDialog.SetActive(false); // 終了確認ダイアログも非表示
+        quitDialog.SetActive(false);
+        optionPanel.SetActive(false);
+        rulePanel.SetActive(false); 
 
         // ロゴの移動先を計算
         logoTargetPosition = CalculateLogoTargetPosition();
@@ -51,10 +55,10 @@ public class TitleManager : MonoBehaviour
         quitButton.onClick.AddListener(ShowQuitDialog);
         yesButton.onClick.AddListener(QuitGame);
         noButton.onClick.AddListener(HideQuitDialog);
-
-        optionPanel.SetActive(false); // オプションパネル
-        optionButton.onClick.AddListener(ShowOptionPanel);       
-        closeOptionButton.onClick.AddListener(HideOptionPanel);  
+        optionButton.onClick.AddListener(ShowOptionPanel);
+        closeOptionButton.onClick.AddListener(HideOptionPanel);
+        ruleButton.onClick.AddListener(ShowRulePanel);        
+        closeRuleButton.onClick.AddListener(HideRulePanel);  
     }
 
     // ロゴの目標位置（左上1/4中央）を画面サイズから計算
@@ -62,12 +66,11 @@ public class TitleManager : MonoBehaviour
     {
         if (logoRect == null || canvas == null)
         {
-            Debug.LogError("logoRect もしくは canvas が設定されていません。");
             return Vector2.zero;
         }
 
         RectTransform canvasRect = canvas.GetComponent<RectTransform>();
-        return new Vector2(-canvasRect.rect.width / 4f, canvasRect.rect.height / 4f);
+        return new Vector2(-canvasRect.rect.width / 5f, canvasRect.rect.height / 5f);
     }
 
     // スタートボタン押下時の処理
@@ -154,7 +157,6 @@ public class TitleManager : MonoBehaviour
         }
     }
 
-
     // ゲームシーンへ遷移
     private async UniTaskVoid LoadGame()
     {
@@ -170,6 +172,18 @@ public class TitleManager : MonoBehaviour
     private void HideOptionPanel()
     {
         optionPanel.SetActive(false);
+    }
+
+    // ルールパネル表示
+    private void ShowRulePanel()
+    {
+        rulePanel.SetActive(true);
+    }
+
+    // ルールパネル非表示
+    private void HideRulePanel()
+    {
+        rulePanel.SetActive(false);
     }
 
     // 終了確認ダイアログを表示

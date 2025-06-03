@@ -38,10 +38,10 @@ public class EndSceneController : MonoBehaviour
 
     private string GetRating(int score)
     {
-        if (score >= 1000) return "S";
-        if (score >= 700) return "A";
-        if (score >= 400) return "B";
-        if (score >= 200) return "C";
+        if (score >= 5000) return "S";
+        if (score >= 3000) return "A";
+        if (score >= 1000) return "B";
+        if (score >= 500) return "C";
         return "D";
     }
 

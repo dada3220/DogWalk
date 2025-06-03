@@ -175,3 +175,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bc49aee69d033143883c886eb6e88b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerScoreValue: 100
+  dogAffectionValue: 0

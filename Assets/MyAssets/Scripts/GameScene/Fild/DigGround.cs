@@ -3,13 +3,15 @@ using Cysharp.Threading.Tasks;
 
 public class DigGround : MonoBehaviour
 {
-    public float digDuration = 3f;                 // 掘る時間
+    public float digDuration = 3f; // 掘る時間
 
     private DogController dog;
+    private ScoreManager scoreManager;
 
     void Start()
     {
         dog = Object.FindFirstObjectByType<DogController>();
+        scoreManager = Object.FindFirstObjectByType<ScoreManager>(); // ScoreManager を探す
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -32,7 +34,7 @@ public class DigGround : MonoBehaviour
     {
         // 犬のAIスクリプト
         Animator dogAnimator = dog.GetComponent<Animator>();
-        var dogAI = dog.GetComponent<MonoBehaviour>(); 
+        var dogAI = dog.GetComponent<MonoBehaviour>();
 
         // 掘りアニメーション再生
         if (dogAnimator != null)
@@ -64,6 +66,13 @@ public class DigGround : MonoBehaviour
         if (dogAnimator != null)
         {
             dogAnimator.Play("walk_front");
+        }
+
+        // スコア加算（ランダムで 100～500）
+        if (scoreManager != null)
+        {
+            int randomScore = Random.Range(100, 501); // 上限は500
+            scoreManager.AddScore(randomScore);
         }
 
         Destroy(gameObject); // 掘り終わったら消える

@@ -177,7 +177,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dogAffectionValueDown: -10
-  dogAffectionValue: 10
+  dogAffectionValue: 0
   runDuration: 5000
   speed: 2
   boostedSpeed: 8

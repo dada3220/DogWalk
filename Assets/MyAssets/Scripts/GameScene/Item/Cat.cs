@@ -4,8 +4,8 @@ using Cysharp.Threading.Tasks;
 [RequireComponent(typeof(Animator))]
 public class Cat : Item
 {
-    public int dogAffectionValueDown = -10;     // プレイヤーが取った時の好感度ダウン
-    public int dogAffectionValue = 10;    // 犬が取った時の好感度アップ
+    public int dogAffectionValueDown;     // プレイヤーが取った時の好感度ダウン
+    public int dogAffectionValue;    // 犬が取った時の好感度アップ
     public int runDuration = 5000;    // 強制移動の継続時間（秒）
 
     public float speed = 2f;                // 猫の移動速度

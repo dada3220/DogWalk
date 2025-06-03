@@ -8,7 +8,6 @@ public class GameManager : MonoBehaviour
     {
         isPlaying = true;
         Time.timeScale = 1f;
-        // スコア・タイマー開始、操作受付など
     }
 
     public bool IsPlaying => isPlaying;

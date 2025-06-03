@@ -1216,19 +1216,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemPrefabs:
-  - {fileID: 5292623882291509566, guid: 1ef4da05bbc180941a881901c2406a10, type: 3}
   - {fileID: 8534044590145638333, guid: 3ccfdf063e7c510428b73aa1ba81d651, type: 3}
   - {fileID: 468069956996599838, guid: b59d33e4bef759a4eac2d03fd822c9ac, type: 3}
   - {fileID: 5288099742070789903, guid: 751053f0ec28ad94881a02a272c6daa7, type: 3}
-  - {fileID: 4981146876032029931, guid: 419607c8cd620744182dfa7483e17ddf, type: 3}
   - {fileID: 7517611061544534372, guid: 40f72359446cc1042861ec2635da7c5a, type: 3}
   - {fileID: 8808375927573603534, guid: a06b8e6101f66804f92602e21905e4b2, type: 3}
   - {fileID: 6276219703453849034, guid: 13fccec73b0160744a5456cbd838a612, type: 3}
   - {fileID: 1510113568698668910, guid: 68051569e833a224994449710378a311, type: 3}
   - {fileID: 3492310389705398139, guid: 51ad66dd5ca19c845b77e47b19f29f7a, type: 3}
+  - {fileID: 5292623882291509566, guid: 1ef4da05bbc180941a881901c2406a10, type: 3}
   spawnInterval: 10
-  maxItems: 10
-  spawnMargin: 1.5
+  maxItems: 8
+  spawnMargin: 3
 --- !u!4 &731795010
 Transform:
   m_ObjectHideFlags: 0

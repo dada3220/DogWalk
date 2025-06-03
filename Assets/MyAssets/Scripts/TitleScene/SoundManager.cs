@@ -1,24 +1,23 @@
 using UnityEngine;
 
-// サウンド全体を管理するシングルトンクラス
+/// <summary>
+/// ゲーム全体のサウンド（BGM/SE）のON/OFFと再生を管理するシングルトンクラス
+/// </summary>
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance;
 
-    [SerializeField] private AudioSource bgmSource;  // BGM用AudioSource（Inspectorでセット）
-    [SerializeField] private AudioSource seSource;   // SE用AudioSource（Inspectorでセット）
+    [SerializeField] private AudioSource bgmSource;  // BGM 用 AudioSource
+    [SerializeField] private AudioSource seSource;   // SE 用 AudioSource（未使用だが残しておく）
 
-    // BGMとSEのON/OFF状態
     public bool IsBgmOn { get; private set; } = true;
     public bool IsSeOn { get; private set; } = true;
 
-    // BGMのON/OFF切り替え時に通知するイベント
     public delegate void OnBgmMuteChangedHandler(bool mute);
     public event OnBgmMuteChangedHandler OnBgmMuteChanged;
 
     private void Awake()
     {
-        // シングルトンの初期化
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -28,26 +27,38 @@ public class SoundManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        LoadSettings();  // PlayerPrefsから設定を読み込み
-        ApplySettings(); // 読み込んだ設定を反映
+        LoadSettings();  // 保存データの読み込み
+        ApplySettings(); // 状態を反映
     }
 
-    // BGMのON/OFFを設定するメソッド
+    /// <summary>
+    /// BGM の ON/OFF を切り替える
+    /// </summary>
     public void SetBgm(bool on)
     {
         IsBgmOn = on;
-        ApplySettings();
         PlayerPrefs.SetInt("BGM_ON", on ? 1 : 0);
+        ApplySettings();
     }
 
-    // SEのON/OFFを設定するメソッド
+    /// <summary>
+    /// SE の ON/OFF を切り替える（SEManager にも反映）
+    /// </summary>
     public void SetSe(bool on)
     {
         IsSeOn = on;
         PlayerPrefs.SetInt("SE_ON", on ? 1 : 0);
+
+        // SEManager にミュート状態を通知
+        if (SEManager.Instance != null)
+        {
+            SEManager.Instance.SetMuteFromManager(!on);
+        }
     }
 
-    // SE再生用メソッド
+    /// <summary>
+    /// SE を直接再生したいとき用（SEManager推奨）
+    /// </summary>
     public void PlaySe(AudioClip clip)
     {
         if (IsSeOn && seSource != null && clip != null)
@@ -56,7 +67,9 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    // 現在の設定をAudioSourceに反映し、BGMのON/OFFイベントも発行
+    /// <summary>
+    /// 現在の設定を AudioSource と SEManager に反映する
+    /// </summary>
     private void ApplySettings()
     {
         if (bgmSource != null)
@@ -64,11 +77,18 @@ public class SoundManager : MonoBehaviour
             bgmSource.mute = !IsBgmOn;
         }
 
-        // BGMのミュート状態をイベントで通知
         OnBgmMuteChanged?.Invoke(!IsBgmOn);
+
+        // SEManager にミュート状態を渡す
+        if (SEManager.Instance != null)
+        {
+            SEManager.Instance.SetMuteFromManager(!IsSeOn);
+        }
     }
 
-    // PlayerPrefsから設定を読み込む
+    /// <summary>
+    /// 保存されている設定を PlayerPrefs から読み込む
+    /// </summary>
     private void LoadSettings()
     {
         IsBgmOn = PlayerPrefs.GetInt("BGM_ON", 1) == 1;

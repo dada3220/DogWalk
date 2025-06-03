@@ -25,7 +25,7 @@ public class Poop : MonoBehaviour
 
             if (dog != null)
             {
-                affinity.DecreaseAffection(10); // 好感度を10減少
+                affinity.DecreaseAffection(15); // 好感度を10減少
             }
 
             Destroy(gameObject); // うんこオブジェクトを削除

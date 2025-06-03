@@ -4,8 +4,8 @@ using Cysharp.Threading.Tasks; // © –Y‚ê‚¸‚ÉI
 public class BerryS : Item
 {
     public int playerScoreValue = 100;       // ƒvƒŒƒCƒ„[‚ªæ‚Á‚½‚ÌƒXƒRƒA
-    public int dogAffectionValue = 10;       // Œ¢‚ªæ‚Á‚½‚ÌDŠ´“x
-    public float poopIntervalMultiplier = 0.1f; // ‚¤‚ñ‚¿ŠÔŠu‚Ì’Zk”{—¦i0.1 = 10%‚É’Zkj
+    public int dogAffectionValue = 0;       // Œ¢‚ªæ‚Á‚½‚ÌDŠ´“x
+    public float poopIntervalMultiplier = 0.05f; // ‚¤‚ñ‚¿ŠÔŠu‚Ì’Zk”{—¦i0.1 = 10%‚É’Zkj
 
     protected override void OnPlayerCollect()
     {

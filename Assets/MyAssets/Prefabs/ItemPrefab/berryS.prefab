@@ -176,5 +176,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerScoreValue: 100
-  dogAffectionValue: 10
-  poopIntervalMultiplier: 0.1
+  dogAffectionValue: 0
+  poopIntervalMultiplier: 0.05
